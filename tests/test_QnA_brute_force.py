@@ -85,7 +85,7 @@ def test_answer_where_expected_ga_in_IS_GA_TOO(qna, prod):
     assert "mag-prev-reg-1 (Q2 2021)" in ans
 
 ## WHY IS THIS BREAKING?
-'''
+
 @pytest.mark.parametrize("prod", [('Not GA Service')])
 def test_answer_where_expected_ga_in_IS_NOT_GA(qna, prod):
     ans = qna.answer_where_expected_ga_in(prod, 'azure-public')
@@ -99,7 +99,7 @@ def test_answer_where_expected_ga_in_IS_NOT_GA(qna, prod):
     assert "is currently targeted for GA" in ans
     assert "Azure Government" in ans
     assert "mag-prev-reg-1 (Q2 2021)" in ans
-'''
+
 
 '''
 @pytest.mark.parametrize("prod, cloud, region", [
