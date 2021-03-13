@@ -25,7 +25,9 @@ jobs:
         source .venv/bin/activate
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - run: |
+    - name: Run pytest
+      run: |
+        source .venv/bin/activate
         pytest tests --verbose --doctest-modules -o junit_family=xunit2 --junitxml=junit/test-results.xml --cov=com --cov=azure_product_bot_kb_updater --cov-report=xml --cov-report=html
     - name: Upload pytest test results
       uses: actions/upload-artifact@v2
