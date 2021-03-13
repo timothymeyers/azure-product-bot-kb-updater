@@ -134,4 +134,3 @@ local.settings.json
 poetry.lock
 requirements2.txt
 junit
-./workflows/*
