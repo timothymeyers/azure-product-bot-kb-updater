@@ -35,20 +35,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt --target=".python_packages/lib/site-packages" 
           popd     
-
-      - name: 'Run Azure Functions Action'
-        uses: Azure/functions-action@v1
-        id: fa
+      - name: Azure Functions Action
+        uses: Azure/functions-action@v1.3.1
         with:
+          # Name of the Azure Function App
           app-name: azure-product-bot-kb-updater
-          #publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-
-      - name: "Publish Build Artifact"
-        uses: actions/upload-artifact@v2.1.4
-        with:
-          # Artifact name
-          #name: azure-product-bot-kb-pkg # optional, default is artifact
-          # A file, directory or wildcard pattern that describes what to upload
-          path: /home/runner/work/_temp/*.zip 
-          # The desired behavior if no files are found using the provided path.        
-          if-no-files-found: warn # optional, default is warn
+          # Path to package or folder. *.zip or a folder to deploy
+          #package: # optional, default is .
+          # Function app slot to be deploy to
+          #slot-name: # optional
+          # Publish profile (*.publishsettings) file contents with web deploy secrets
+          #publish-profile: # optional
+          # Automatically look up Java function app artifact from pom.xml (default: 'false'). When this is set to 'true', 'package' should point to the folder of host.json.
+          #respect-pom-xml: # optional, default is false
+          # Remove unwanted files defined in .funcignore file (default: 'false'). When this is set to 'true', 'package' should point to the folder of host.json.
+          respect-funcignore: true # optional, default is false
+          # Enable build action from Kudu when the package is deployed onto the function app. This will temporarily change the SCM_DO_BUILD_DURING_DEPLOYMENT setting for this deployment. To bypass this and use the existing settings from your function app, please set this to an empty string ''. To enable remote build for your project, please set this and 'enable-oryx-build' both to 'true'. By default, GitHub Action respsect the packages resolved in GitHub workflow, disabling the redundant build action from Kudu endpoint. (default: 'false').
+          # scm-do-build-during-deployment: # optional, default is false
+          # Use Oryx Build from Kudu when the package is deployed onto the function app. (Linux functions only). This will temporarily change the ENABLE_ORYX_BUILD setting from this deployment. To bypass this and use the existing settings from your function app, please set this to an empty string ''. To enable remote build for your project, please set this and 'scm-do-build-during-deployment' both to 'true'. By default, GitHub Action respsect the packages resolved in GitHub workflow, disabling the redundant build action from Kudu endpoint. (default: 'false').
+          # enable-oryx-build: # optional, default is false
