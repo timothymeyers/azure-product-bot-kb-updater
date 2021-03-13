@@ -42,7 +42,7 @@ class QnABruteForce:
         for id in self.__az.products_list():
             self.__hydrate_available_qna(id)
             self.__hydrate_preview_qna(id)
-            #self.__hydrate_expected_qna(id)
+            self.__hydrate_expected_qna(id)
 
     def __hydrate_available_qna(self, id):
         md = [{
@@ -59,7 +59,15 @@ class QnABruteForce:
         ## answer 1
         a = self.answer_is_ga(id)
         a_id = len(self.__qna)
-        qs = ["Is %s ga?" % id, "Is %s available?" % id]
+        qs = [
+            "Is %s ga?" % id, 
+            "Is %s available?" % id,
+            "What regions is %s available in?" % id,
+            "What regions is %s ga in?" % id,
+            "Where is %s ga in?" % id,
+            "Where is %s available in?" % id,
+            "Where is %s?" % id,
+        ]
 
         self.__qna.append({
             'id': a_id,
@@ -72,7 +80,17 @@ class QnABruteForce:
         ## answer 2
         a = self.answer_is_ga_in_cloud(id, 'azure-public')
         a_id = len(self.__qna)
-        qs = ["Is %s available in Azure Commercial?" % id, "Is %s GA in Azure Commercial?" % id]
+        qs = [
+            "Is %s available in Azure Commercial?" % id, 
+            "Is %s GA in Azure Commercial?" % id,
+            "Is %s ga in Azure Commercial?" % id,
+            "Is %s in Azure Commercial?" % id,
+            "What regions is %s available in Azure Commercial?" % id,
+            "What regions is %s ga in Azure Commercial?" % id,
+            "Where is %s available in Azure Commerical?" % id,
+            "Where is %s ga in Azure Commerical?" % id,
+            "Where is %s in Azure Commerical?" % id,
+        ]
         md = md.copy()
         md.append({'name': 'cloud', 'value': 'azure-public'})
         self.__qna.append({
@@ -90,7 +108,19 @@ class QnABruteForce:
             "Is %s available in Azure Government?" % id,
             "Is %s GA in Azure Government?" % id,
             "Is %s available in MAG?" % id,
-            "Is %s GA in Azure MAG?" % id
+            "Is %s GA in MAG?" % id,
+            "Is %s in Azure Government?" % id,
+            "Is %s in MAG?" % id,
+            "What regions is %s available in Azure Government?" % id,
+            "What regions is %s ga in Azure Government?" % id,
+            "Where is %s available in Azure Government?" % id,
+            "Where is %s ga in Azure Government?" % id,
+            "Where is %s in Azure Government?" % id,
+            "What regions is %s available in MAG?" % id,
+            "What regions is %s ga in MAG?" % id,
+            "Where is %s available in MAG?" % id,
+            "Where is %s ga in MAG?" % id,
+            "Where is %s in MAG?" % id,
         ]
         md = md.copy()
         md.pop()
@@ -168,35 +198,82 @@ class QnABruteForce:
 
     def __hydrate_expected_qna(self, id):
 
-        self.__qna.append((
-            "Where is %s expected to be GA?" % id, "%s%s" % (id, self.answer_where_expected_ga(id))
-        ))
-        """
-        q = "When is %s expected to be available? \t" % id
-            print(q, self.answer_isExpectedToBeGa(id, prod))
-            q = "When is %s expected to be available in Azure Government? \t" % id
-            print(
-                q, self.answer_isExpectedToBeGaIn(id, "Azure Government", prod['azure-government'])
-            )
-            q = "When is %s expected to be available in Azure Commercial? \t" % id
-            print(q, self.answer_isExpectedToBeGaIn(id, "Azure Commercial", prod['azure-public']))
-        """
+        md = [{
+            'name': 'product',
+            'value': id.replace('|', ' ').replace(':', ' ')
+        }, {
+            'name': 'questionType',
+            'value': 'ga-expected'
+        }, {
+            'name': 'functiontest',
+            'value': FUNC_TEST_NUM
+        }]
+
+        ## answer 1
+        a = id + self.answer_where_preview(id)
+        a_id = len(self.__qna)
+        qs = ["When is %s expected to be available?" % id, "When is %s expected to be ga?" % id]
+
+        self.__qna.append({
+            'id': a_id,
+            'answer': a,
+            'source': 'Expected Answers',
+            'questions': qs,
+            'metadata': md
+        })
+
+        ## answer 2
+        a = id + self.answer_where_preview_in(id, 'azure-public')
+        a_id = len(self.__qna)
+        qs = [
+            "When is %s expected to be available in Azure Commercial?" % id,
+            "When is %s expected to be ga in Azure Commercial?" % id
+        ]
+        md = md.copy()
+        md.append({'name': 'cloud', 'value': 'azure-public'})
+        self.__qna.append({
+            'id': a_id,
+            'answer': a,
+            'source': 'Expected Answers',
+            'questions': qs,
+            'metadata': md
+        })
+
+        ## answer 3
+        a = id + self.answer_where_preview_in(id, 'azure-government')
+        a_id = len(self.__qna)
+        qs = [
+            "When is %s expected to be available in Azure Government?" % id,
+            "When is %s expected to be available in MAG?" % id,
+            "When is %s expected to be ga in Azure Government?" % id,
+            "When is %s expected to be ga in MAG?" % id
+        ]
+        md = md.copy()
+        md.pop()
+        md.append({'name': 'cloud', 'value': 'azure-government'})
+        self.__qna.append({
+            'id': a_id,
+            'answer': a,
+            'source': 'Expected Answers',
+            'questions': qs,
+            'metadata': md
+        })
 
     def answer_is_ga(self, id):
         az_pub = self.__az.isProductAvailable(id, 'azure-public')
         az_gov = self.__az.isProductAvailable(id, 'azure-government')
 
         if (az_pub and az_gov):
-            return "Yes. **%s** is GA in both Azure Commercial and Azure Government.\\nIt%s\\nIt%s" % (
+            return "Yes. **%s** is GA in both *Azure Commercial* and *Azure Government*.\\nIt%s\\nIt%s" % (
                 id, self.answer_where_ga_in(id, 'azure-public'),
                 self.answer_where_ga_in(id, 'azure-government')
             )
         elif az_pub:
-            return "Yes, only in Azure Commercial though. **%s**%s" % (
+            return "Yes, only in *Azure Commercial* though. **%s**%s" % (
                 id, self.answer_where_ga_in(id, 'azure-public')
             )
         elif az_gov:
-            return "Yes, only in Azure Government though. **%s**%s" % (
+            return "Yes, only in *Azure Government* though. **%s**%s" % (
                 id, self.answer_where_ga_in(id, 'azure-government')
             )
 
@@ -249,7 +326,7 @@ class QnABruteForce:
         az_gov = self.answer_where_preview_in(id, 'azure-government')
 
         if ("not" in az_pub and "not" in az_gov):
-            return " is not in preview in either **Azure Commercial** or **Azure Government**"
+            return " is not in preview in either *Azure Commercial* or *Azure Government*"
         elif ("not" in az_pub):
             return az_gov + " However, it" + az_pub
         elif ("not" in az_gov):
@@ -274,7 +351,7 @@ class QnABruteForce:
         az_gov = self.answer_where_expected_ga_in(id, 'azure-government')
 
         if ("not" in az_pub and "not" in az_gov):
-            return " is not targeted for either **Azure Commercial** or **Azure Government**"
+            return " is not targeted for either *Azure Commercial* or *Azure Government*"
         elif ("not" in az_pub):
             return az_gov + " However, it" + az_pub
         elif ("not" in az_gov):
@@ -341,45 +418,6 @@ class QnABruteForce:
     def qnaGetAvailable(self):
 
         for id, prod in self.__joined_data.items():
-            q = "Is %s available? \t " % id
-            print(q, self.answer_isGa(id, prod))
-            q = "Is %s ga? \t " % id
-            print(q, self.answer_isGa(id, prod))
-            q = "Is %s available in Azure Commercial? \t " % id
-            print(q, self.answer_isGaIn(id, "Azure Commercial", prod['azure-public']))
-            q = "Is %s ga in Azure Commercial? \t " % id
-            print(q, self.answer_isGaIn(id, "Azure Commercial", prod['azure-public']))
-            q = "Is %s available in Azure Government? \t " % id
-            print(q, self.answer_isGaIn(id, "Azure Government", prod['azure-government']))
-            q = "Is %s ga in Azure Government? \t " % id
-            print(q, self.answer_isGaIn(id, "Azure Government", prod['azure-government']))
-            q = "Is %s available in MAG? \t " % id
-            print(q, self.answer_isGaIn(id, "Azure Government", prod['azure-government']))
-            q = "Is %s ga in MAG? \t " % id
-            print(q, self.answer_isGaIn(id, "Azure Government", prod['azure-government']))
-
-            q = "Is %s in preview? \t " % id
-            print(q, self.answer_isPreview(id, prod))
-            q = "Is %s in preview in Azure Commercial? \t " % id
-            print(q, self.answer_isPreviewIn(id, "Azure Commercial", prod['azure-public']))
-            q = "Is %s in preview in Azure Government? \t " % id
-            print(q, self.answer_isPreviewIn(id, "Azure Government", prod['azure-government']))
-
-            q = "When is %s expected to be available? \t" % id
-            print(q, self.answer_isExpectedToBeGa(id, prod))
-            q = "When is %s expected to be available in Azure Government? \t" % id
-            print(
-                q, self.answer_isExpectedToBeGaIn(id, "Azure Government", prod['azure-government'])
-            )
-            q = "When is %s expected to be available in Azure Commercial? \t" % id
-            print(q, self.answer_isExpectedToBeGaIn(id, "Azure Commercial", prod['azure-public']))
-
-            q = "What regions are %s available in? \t" % id
-            print(q, self.answer_whatRegionsGa(id, prod))
-            q = "What regions are %s available in Azure Commercial? \t" % id
-            print(q, self.answer_whatRegionsGaIn(id, "Azure Commercial", prod['azure-public']))
-            q = "What regions are %s available in Azure Government? \t" % id
-            print(q, self.answer_whatRegionsGaIn(id, "Azure Government", prod['azure-government']))
 
             svc = ""
             if 'service' in prod.keys():
