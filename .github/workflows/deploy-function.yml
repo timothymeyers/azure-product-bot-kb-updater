@@ -39,6 +39,7 @@ jobs:
         id: fa
         with:
           app-name: azure-product-bot-kb-updater
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
 
       - name: "Publish Build Artifact"
         uses: actions/upload-artifact@v2.1.4
