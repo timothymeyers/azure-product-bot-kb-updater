@@ -4,7 +4,6 @@ import os, http.client, urllib.parse, json, time
 import azure.functions as func
 from ..com.QnA_brute_force import QnABruteForce
 
-
 KB_SUBSCRIPTION_KEY = ''
 KB_ID = ''
 
@@ -44,8 +43,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.debug(pretty_print(content))
     result = replace_kb(path, content, KB_SUBSCRIPTION_KEY)
     # Print request response in JSON with presentable formatting.
-    logging.info(pretty_print(result))
-
+    logging.info("replace_db - ", pretty_print(result))
+    result = publish_kb(path, '', KB_SUBSCRIPTION_KEY)
+    logging.info("publish_db - ", pretty_print(result))
+    
     #### End Function Code #### ------------------------------------------------------------------
 
     if name:
@@ -96,7 +97,7 @@ Sends a PUT HTTP request, to replace the knowledge base.
 
 
 def replace_kb(path, content, subscriptionKey):
-    logging.info ('Calling ' + HOST + path + '.')
+    logging.info('Calling ' + HOST + path + '.')
     headers = {
         'Ocp-Apim-Subscription-Key': subscriptionKey,
         'Content-Type': 'application/json',
@@ -104,6 +105,33 @@ def replace_kb(path, content, subscriptionKey):
     }
     conn = http.client.HTTPSConnection(HOST)
     conn.request("PUT", path, content, headers)
+    response = conn.getresponse()
+
+    if response.status == 204:
+        return json.dumps({'result': 'Success.'})
+    else:
+        return response.read()
+
+
+'''
+Sends a POST HTTP request.
+:param path: The URL path of your request.
+:param content: The contents of your POST request.
+:type: string
+:return: Status of POST request in publishing the kb.
+:rtype: string
+'''
+
+
+def publish_kb(path, content, subscriptionKey):
+    logging.info('Calling ' + HOST + path + '.')
+    headers = {
+        'Ocp-Apim-Subscription-Key': subscriptionKey,
+        'Content-Type': 'application/json',
+        'Content-Length': len(content)
+    }
+    conn = http.client.HTTPSConnection(HOST)
+    conn.request("POST", path, content, headers)
     response = conn.getresponse()
 
     if response.status == 204:
