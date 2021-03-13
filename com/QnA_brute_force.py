@@ -57,7 +57,8 @@ class QnABruteForce:
         }]
 
         ## answer 1
-        a = self.answer_is_ga(id)
+        # a = self.answer_is_ga(id)
+        a = id + self.answer_where_ga(id)
         a_id = len(self.__qna)
         qs = [
             "Is %s ga?" % id, 
@@ -78,7 +79,8 @@ class QnABruteForce:
         })
 
         ## answer 2
-        a = self.answer_is_ga_in_cloud(id, 'azure-public')
+        # a = self.answer_is_ga_in_cloud(id, 'azure-public')
+        a = id + self.answer_where_ga_in (id, 'azure-public')
         a_id = len(self.__qna)
         qs = [
             "Is %s available in Azure Commercial?" % id, 
@@ -102,7 +104,8 @@ class QnABruteForce:
         })
 
         ## answer 3
-        a = self.answer_is_ga_in_cloud(id, 'azure-government')
+        # a = self.answer_is_ga_in_cloud(id, 'azure-government')
+        a = id + self.answer_where_ga_in(id, 'azure-government')
         a_id = len(self.__qna)
         qs = [
             "Is %s available in Azure Government?" % id,
