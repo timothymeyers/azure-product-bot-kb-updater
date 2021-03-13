@@ -86,7 +86,7 @@ class QnABruteForce:
             'value': 'availability'
         }, {
             'name': 'functiontest',
-            'value': '0002'
+            'value': '0003'
         }]
 
         ## answer 1
