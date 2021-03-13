@@ -17,7 +17,6 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2        
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
@@ -31,21 +30,24 @@ jobs:
       - name: 'Install pip and dependencies'
         shell: bash
         run: |
+          pushd .
           poetry export --without-hashes --dev -o requirements.txt
           python -m pip install --upgrade pip
-          pip install -r requirements.txt --target=".python_packages/lib/site-packages"        
+          pip install -r requirements.txt --target=".python_packages/lib/site-packages" 
+          popd     
+
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: azure-product-bot-kb-updater
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          #publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
 
       - name: "Publish Build Artifact"
         uses: actions/upload-artifact@v2.1.4
         with:
           # Artifact name
-          name: azure-product-bot-kb-updater # optional, default is artifact
+          name: azure-product-bot-kb-pkg # optional, default is artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: /home/runner/work/_temp/*.zip 
           # The desired behavior if no files are found using the provided path.        
