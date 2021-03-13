@@ -20,7 +20,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2        
       - name: 'Login via Azure CLI'
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Setup Python 3.8
@@ -35,7 +35,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt --target=".python_packages/lib/site-packages"        
       - name: 'Run Azure Functions Action'
-        uses: Azure/functions-action@v2
+        uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: azure-product-bot-kb-updater
