@@ -213,7 +213,7 @@ class QnABruteForce:
         }]
 
         ## answer 1
-        a = id + self.answer_where_preview(id)
+        a = id + self.answer_where_expected_ga(id)
         a_id = len(self.__qna)
         qs = ["When is %s expected to be available?" % id, "When is %s expected to be ga?" % id]
 
@@ -226,7 +226,7 @@ class QnABruteForce:
         })
 
         ## answer 2
-        a = id + self.answer_where_preview_in(id, 'azure-public')
+        a = id + self.answer_where_expected_ga_in(id, 'azure-public')
         a_id = len(self.__qna)
         qs = [
             "When is %s expected to be available in Azure Commercial?" % id,
@@ -243,7 +243,7 @@ class QnABruteForce:
         })
 
         ## answer 3
-        a = id + self.answer_where_preview_in(id, 'azure-government')
+        a = id + self.answer_where_expected_ga_in(id, 'azure-government')
         a_id = len(self.__qna)
         qs = [
             "When is %s expected to be available in Azure Government?" % id,
