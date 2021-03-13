@@ -262,6 +262,7 @@ class QnABruteForce:
             'metadata': md
         })
 
+    '''
     def answer_is_ga(self, id):
         az_pub = self.__az.isProductAvailable(id, 'azure-public')
         az_gov = self.__az.isProductAvailable(id, 'azure-government')
@@ -291,6 +292,7 @@ class QnABruteForce:
         if available:
             return "Yes. **%s**%s" % (id, self.answer_where_ga_in(id, cloud))
         return "No. **%s**%s" % (id, self.answer_where_ga_in(id, cloud))
+    '''
 
     def answer_where_ga(self, id):
         return (
