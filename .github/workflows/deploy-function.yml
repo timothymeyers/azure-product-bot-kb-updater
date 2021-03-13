@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v2.1.4
         with:
           # Artifact name
-          name: azure-product-bot-kb-pkg # optional, default is artifact
+          #name: azure-product-bot-kb-pkg # optional, default is artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: /home/runner/work/_temp/*.zip 
           # The desired behavior if no files are found using the provided path.        
