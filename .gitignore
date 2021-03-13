@@ -131,3 +131,6 @@ local.settings.json
 
 # Other ignores
 .vscode
+poetry.lock
+requirements.txt
+requirements2.txt
