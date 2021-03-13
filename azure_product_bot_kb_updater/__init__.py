@@ -43,9 +43,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.debug(pretty_print(content))
     result = replace_kb(path, content, KB_SUBSCRIPTION_KEY)
     # Print request response in JSON with presentable formatting.
-    logging.info("replace_db - ", pretty_print(result))
+    logging.info("replace_db - " + pretty_print(result))
     result = publish_kb(path, '', KB_SUBSCRIPTION_KEY)
-    logging.info("publish_db - ", pretty_print(result))
+    logging.info("publish_db - " + pretty_print(result))
     
     #### End Function Code #### ------------------------------------------------------------------
 
