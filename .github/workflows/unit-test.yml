@@ -21,6 +21,8 @@ jobs:
     - run: |
         poetry export --without-hashes --dev -o requirements.txt
     - run: |
+        python -m venv .venv
+        source .venv/bin/activate
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - run: |
