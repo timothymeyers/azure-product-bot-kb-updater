@@ -378,7 +378,7 @@ class QnABruteForce:
         return [i['region'] + " (" + i['ga-expected'] + ")" for i in in_list]
 
     def dump(self):
-        return self.__data.products()
+        return self.__az.product_list()
 
     ##########################
 
