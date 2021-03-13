@@ -1,0 +1,51 @@
+name: 02 Deploy Function
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  workflow_run:
+    workflows:
+      - Tests
+    types:
+      - completed
+  
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs: 
+  deploy-to-azure:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2        
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - uses: snok/install-poetry@v1.1.1
+      - name: 'Install pip and dependencies'
+        shell: bash
+        run: |
+          poetry export --without-hashes --dev -o requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --target=".python_packages/lib/site-packages"        
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v2
+        id: fa
+        with:
+          app-name: azure-product-bot-kb-updater
+
+      - name: "Publish Build Artifact"
+        uses: actions/upload-artifact@v2.1.4
+        with:
+          # Artifact name
+          name: azure-product-bot-kb-updater # optional, default is artifact
+          # A file, directory or wildcard pattern that describes what to upload
+          path: /home/runner/work/_temp/*.zip 
+          # The desired behavior if no files are found using the provided path.        
+          if-no-files-found: warn # optional, default is warn
