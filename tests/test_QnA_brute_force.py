@@ -1,6 +1,6 @@
 import pytest
-from com.QnA_brute_force import (QnABruteForce, list_to_markdown)
 from azure_data_scraper.az_product_info import AzProductInfo
+from com.QnA_brute_force import (QnABruteForce, list_to_markdown)
 
 # "Constaints"
 
