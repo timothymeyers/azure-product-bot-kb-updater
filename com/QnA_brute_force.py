@@ -3,6 +3,7 @@ from azure.cognitiveservices.knowledge.qnamaker.models import (QnADTO, MetadataD
 
 FUNC_TEST_NUM = "0004"
 
+
 def list_to_markdown(in_list=None, one_line=False) -> str:
     if in_list is None or in_list == []: return ""
 
@@ -116,7 +117,7 @@ class QnABruteForce:
         }]
 
         ## answer 1
-        a = self.answer_where_preview(id)
+        a = id + self.answer_where_preview(id)
         a_id = len(self.__qna)
         qs = ["Is %s in preview?" % id, "Where is %s in preview?" % id]
 
@@ -129,7 +130,7 @@ class QnABruteForce:
         })
 
         ## answer 2
-        a = self.answer_where_preview_in (id, 'azure-public')
+        a = id + self.answer_where_preview_in(id, 'azure-public')
         a_id = len(self.__qna)
         qs = [
             "Is %s in preview in Azure Commercial?" % id,
@@ -146,7 +147,7 @@ class QnABruteForce:
         })
 
         ## answer 3
-        a = self.answer_where_preview_in (id, 'azure-government')
+        a = id + self.answer_where_preview_in(id, 'azure-government')
         a_id = len(self.__qna)
         qs = [
             "Is %s in preview in Azure Government?" % id,
