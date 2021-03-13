@@ -1,4 +1,4 @@
-name: 02 Deploy Function
+name: 02 Deploy Function to Azure - azure-product-bot-kb-updater
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -9,48 +9,38 @@ on:
     types:
       - completed
   
+
+
+  
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs: 
   deploy-to-azure:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success2' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2        
-      - name: 'Login via Azure CLI'
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - uses: snok/install-poetry@v1.1.1
-      - name: 'Install pip and dependencies'
-        shell: bash
-        run: |
-          pushd .
-          poetry export --without-hashes --dev -o requirements.txt
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt --target=".python_packages/lib/site-packages" 
-          popd     
-      - name: Azure Functions Action
-        uses: Azure/functions-action@v1.3.1
-        with:
-          # Name of the Azure Function App
-          app-name: azure-product-bot-kb-updater
-          # Path to package or folder. *.zip or a folder to deploy
-          #package: # optional, default is .
-          # Function app slot to be deploy to
-          #slot-name: # optional
-          # Publish profile (*.publishsettings) file contents with web deploy secrets
-          #publish-profile: # optional
-          # Automatically look up Java function app artifact from pom.xml (default: 'false'). When this is set to 'true', 'package' should point to the folder of host.json.
-          #respect-pom-xml: # optional, default is false
-          # Remove unwanted files defined in .funcignore file (default: 'false'). When this is set to 'true', 'package' should point to the folder of host.json.
-          respect-funcignore: true # optional, default is false
-          # Enable build action from Kudu when the package is deployed onto the function app. This will temporarily change the SCM_DO_BUILD_DURING_DEPLOYMENT setting for this deployment. To bypass this and use the existing settings from your function app, please set this to an empty string ''. To enable remote build for your project, please set this and 'enable-oryx-build' both to 'true'. By default, GitHub Action respsect the packages resolved in GitHub workflow, disabling the redundant build action from Kudu endpoint. (default: 'false').
-          # scm-do-build-during-deployment: # optional, default is false
-          # Use Oryx Build from Kudu when the package is deployed onto the function app. (Linux functions only). This will temporarily change the ENABLE_ORYX_BUILD setting from this deployment. To bypass this and use the existing settings from your function app, please set this to an empty string ''. To enable remote build for your project, please set this and 'scm-do-build-during-deployment' both to 'true'. By default, GitHub Action respsect the packages resolved in GitHub workflow, disabling the redundant build action from Kudu endpoint. (default: 'false').
-          # enable-oryx-build: # optional, default is false
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@master
+
+    - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 'Resolve Project Dependencies Using Pip'
+      shell: bash
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+        popd
+
+    - name: 'Run Azure Functions Action'
+      uses: Azure/functions-action@v1
+      id: fa
+      with:
+        app-name: 'azure-product-bot-kb-updater'
+        slot-name: 'production'
+        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_d0c86fae2ccd47b4b2743dbb933e1a97 }}
