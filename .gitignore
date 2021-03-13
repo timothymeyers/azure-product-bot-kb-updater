@@ -135,3 +135,4 @@ poetry.lock
 requirements2.txt
 junit
 .github/workflows/main_azure-product-bot-kb-updater.yml
+workflows
