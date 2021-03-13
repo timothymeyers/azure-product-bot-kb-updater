@@ -1,6 +1,7 @@
 from azure_data_scraper.az_product_info import AzProductInfo
 from azure.cognitiveservices.knowledge.qnamaker.models import (QnADTO, MetadataDTO)
 
+FUNC_TEST_NUM = "0004"
 
 def list_to_markdown(in_list=None, one_line=False) -> str:
     if in_list is None or in_list == []: return ""
@@ -38,46 +39,11 @@ class QnABruteForce:
 
     def __hydrate_qna(self):
         for id in self.__az.products_list():
-            self.__hydrate_available_qna3(id)
-            #self.__hydrate_available_qna(id)
-            #self.__hydrate_preview_qna(id)
+            self.__hydrate_available_qna(id)
+            self.__hydrate_preview_qna(id)
             #self.__hydrate_expected_qna(id)
 
     def __hydrate_available_qna(self, id):
-        self.__qna.append(("Is %s available (GA)?" % id, self.answer_is_ga(id)))
-
-        self.__qna.append((
-            "Is %s available (GA) in Azure Commercial?" % id,
-            self.answer_is_ga_in_cloud(id, 'azure-public')
-        ))
-
-        self.__qna.append((
-            "Is %s available (GA) in Azure Government (MAG)?" % id,
-            self.answer_is_ga_in_cloud(id, 'azure-government')
-        ))
-
-    """
-        req = {
-        'qnaList': [
-            {
-            'id': 0,
-            'answer': 'You can use our REST APIs to manage your Knowledge Base. See here for details: https://westus.dev.cognitive.microsoft.com/docs/services/5a93fcf85b4ccd136866eb37/operations/5ac266295b4ccd1554da7600',
-            'source': 'Custom Editorial',
-            'questions': [
-                'How do I programmatically update my Knowledge Base?'
-            ],
-            'metadata': [
-                {
-                'name': 'category',
-                'value': 'api'
-                }
-            ]
-            }
-        ]
-        }
-    """
-
-    def __hydrate_available_qna3(self, id):
         md = [{
             'name': 'product',
             'value': id.replace('|', ' ').replace(':', ' ')
@@ -86,7 +52,7 @@ class QnABruteForce:
             'value': 'availability'
         }, {
             'name': 'functiontest',
-            'value': '0003'
+            'value': FUNC_TEST_NUM
         }]
 
         ## answer 1
@@ -107,10 +73,7 @@ class QnABruteForce:
         a_id = len(self.__qna)
         qs = ["Is %s available in Azure Commercial?" % id, "Is %s GA in Azure Commercial?" % id]
         md = md.copy()
-        md.append({
-            'name':'cloud',
-            'value':'azure-public'
-        })
+        md.append({'name': 'cloud', 'value': 'azure-public'})
         self.__qna.append({
             'id': a_id,
             'answer': a,
@@ -123,16 +86,14 @@ class QnABruteForce:
         a = self.answer_is_ga_in_cloud(id, 'azure-government')
         a_id = len(self.__qna)
         qs = [
-            "Is %s available in Azure Government?" % id, 
+            "Is %s available in Azure Government?" % id,
             "Is %s GA in Azure Government?" % id,
-            "Is %s available in MAG?" % id, 
-            "Is %s GA in Azure MAG?" % id]
+            "Is %s available in MAG?" % id,
+            "Is %s GA in Azure MAG?" % id
+        ]
         md = md.copy()
         md.pop()
-        md.append({
-            'name':'cloud',
-            'value':'azure-government'
-        })
+        md.append({'name': 'cloud', 'value': 'azure-government'})
         self.__qna.append({
             'id': a_id,
             'answer': a,
@@ -141,74 +102,68 @@ class QnABruteForce:
             'metadata': md
         })
 
-
-
-    def __hydrate_available_qna2(self, id):
-        md = {'Product': id, 'QuestionType': 'availability'}
-        a = self.answer_is_ga(id)
-        qs = ["Is %s ga?" % id, "Is %s available?" % id]
-
-        self.__qna.append((a, qs, md))
-
-        a = self.answer_is_ga_in_cloud(id, 'azure-public')
-        qs = ["Is %s available in Azure Commercial?" % id, "Is %s GA in Azure Commercial?" % id]
-        md['cloud'] = 'AzureCommercial'
-        self.__qna.append((a, qs, md))
-
-        a = self.answer_is_ga_in_cloud(id, 'azure-government')
-        qs = ["Is %s available in Azure Government?" % id, "Is %s GA in Azure Government?" % id]
-        md['cloud'] = 'AzureGovernment'
-        self.__qna.append((a, qs, md))
-
-    def __hydrate_available_QnADTO(self, id):
-
-        md = [
-            MetadataDTO(name="Product", value=id),
-            MetadataDTO(name="Context", value="availability"),
-        ]
-
-        a = self.answer_is_ga(id)
-        qs = ["Is %s ga?" % id, "Is %s available?" % id]
-
-        self.__qna.append(QnADTO(answer=a, questions=qs, metadata=md))
-
-        a = self.answer_is_ga_in_cloud(id, 'azure-public')
-        qs = ["Is %s available in Azure Commercial?" % id, "Is %s GA in Azure Commercial?" % id]
-
-        self.__qna.append(
-            QnADTO(
-                answer=a,
-                questions=qs,
-               #metadata = md + [MetadataDTO(name="Cloud", value="Azure Commercial")]
-            )
-        )
-
-        a = self.answer_is_ga_in_cloud(id, 'azure-government')
-        qs = ["Is %s available in Azure Government?" % id, "Is %s GA in Azure Government?" % id]
-
-        self.__qna.append(
-            QnADTO(
-                answer=a,
-                questions=qs,
-               #metadata = md + [MetadataDTO(name="Cloud", value="Azure Government")]
-            )
-        )
-
     def __hydrate_preview_qna(self, id):
 
-        self.__qna.append(
-            ("Where is %s in preview?" % id, "%s%s" % (id, self.answer_where_preview(id)))
-        )
+        md = [{
+            'name': 'product',
+            'value': id.replace('|', ' ').replace(':', ' ')
+        }, {
+            'name': 'questionType',
+            'value': 'preview'
+        }, {
+            'name': 'functiontest',
+            'value': FUNC_TEST_NUM
+        }]
 
-        self.__qna.append((
-            "Where is %s in preview in Azure Commercial?" % id,
-            "%s%s" % (id, self.answer_where_preview_in(id, 'azure-public'))
-        ))
+        ## answer 1
+        a = self.answer_where_preview(id)
+        a_id = len(self.__qna)
+        qs = ["Is %s in preview?" % id, "Where is %s in preview?" % id]
 
-        self.__qna.append((
-            "Where is %s in preview in Azure Government (MAG)?" % id,
-            "%s%s" % (id, self.answer_where_preview_in(id, 'azure-government'))
-        ))
+        self.__qna.append({
+            'id': a_id,
+            'answer': a,
+            'source': 'Preview Answers',
+            'questions': qs,
+            'metadata': md
+        })
+
+        ## answer 2
+        a = self.answer_where_preview_in (id, 'azure-public')
+        a_id = len(self.__qna)
+        qs = [
+            "Is %s in preview in Azure Commercial?" % id,
+            "Where is %s in preview in Azure Commercial?" % id
+        ]
+        md = md.copy()
+        md.append({'name': 'cloud', 'value': 'azure-public'})
+        self.__qna.append({
+            'id': a_id,
+            'answer': a,
+            'source': 'Preview Answers',
+            'questions': qs,
+            'metadata': md
+        })
+
+        ## answer 3
+        a = self.answer_where_preview_in (id, 'azure-government')
+        a_id = len(self.__qna)
+        qs = [
+            "Is %s in preview in Azure Government?" % id,
+            "Where is %s in preview in Azure Government?" % id,
+            "Is %s in preview in MAG?" % id,
+            "Where is %s in preview in MAG?" % id,
+        ]
+        md = md.copy()
+        md.pop()
+        md.append({'name': 'cloud', 'value': 'azure-government'})
+        self.__qna.append({
+            'id': a_id,
+            'answer': a,
+            'source': 'Preview Answers',
+            'questions': qs,
+            'metadata': md
+        })
 
     def __hydrate_expected_qna(self, id):
 
