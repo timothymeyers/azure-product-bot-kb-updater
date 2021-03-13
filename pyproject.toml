@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "azure-product-bot-kb-updater"
+version = "0.0.1"
+description = ""
+authors = ["Tim Meyers"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+azure-cognitiveservices-knowledge-qnamaker = "^0.3.0"
+azure-functions = "^1.6.0"
+azure-data-scraper = "^0.1.5"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.2"
+yapf = "^0.30.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
