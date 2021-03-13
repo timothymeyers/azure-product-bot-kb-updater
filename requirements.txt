@@ -1,0 +1,22 @@
+# DO NOT include azure-functions-worker in this file
+# The Python Worker is managed by Azure Functions platform
+# Manually managing azure-functions-worker may cause unexpected issues
+
+azure-functions
+azure-cognitiveservices-knowledge-qnamaker==0.3.0
+azure-common
+azure-data-scraper
+beautifulsoup4
+bs4
+certifi
+chardet
+idna
+isodate
+lxml
+msrest
+oauthlib
+requests-oauthlib
+requests
+six
+soupsieve
+urllib3
