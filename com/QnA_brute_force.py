@@ -2,6 +2,7 @@ from azure_data_scraper.az_product_info import AzProductInfo
 from azure.cognitiveservices.knowledge.qnamaker.models import (QnADTO, MetadataDTO)
 
 FUNC_TEST_NUM = "0005"
+QnA_SOURCE = "QnA Brute Force"
 
 
 def list_to_markdown(in_list=None, one_line=False) -> str:
@@ -71,7 +72,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -105,7 +106,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -130,7 +131,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -163,7 +164,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -189,7 +190,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -206,7 +207,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -226,7 +227,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -252,7 +253,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -269,7 +270,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
@@ -289,7 +290,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Auto Answers',
+            'source': QnA_SOURCE,
             'questions': qs,
             'metadata': md
         })
