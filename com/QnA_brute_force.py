@@ -171,72 +171,50 @@ class QnABruteForce:
         })
 
     def __hydrate_preview_qna(self, id):
+        md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
+        md_type = {'name': 'questionType', 'value': 'preview-quesiton'}
+        md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
+        md_azpub = {'name': 'cloud', 'value': 'azure-public'}
+        md_azgov = {'name': 'cloud', 'value': 'azure-government'}
 
-        md = [{
-            'name': 'product',
-            'value': id.replace('|', ' ').replace(':', ' ')
-        }, {
-            'name': 'questionType',
-            'value': 'preview'
-        }, {
-            'name': 'functiontest',
-            'value': FUNC_TEST_NUM
-        }]
-
-        ## answer 1
-        a = _b(id) + self.answer_where_preview(id)
-        a_id = len(self.__qna)
-        qs = ["Is %s in preview?" % id, "Where is %s in preview?" % id]
-
+        md = [md_prod, md_type, md_test]
+        
+        ## Where is {id} in preview?
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': _b(id) + self.answer_where_preview(id),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': [ f"{word}is {id} in preview?" for word in ['','Where '] ],
+            'metadata': md.copy()
         })
 
-        ## answer 2
-        a = _b(id) + self.answer_where_preview_in(id, 'azure-public')
-        a_id = len(self.__qna)
-        qs = [
-            "Is %s in preview in Azure Commercial?" % id,
-            "Where is %s in preview in Azure Commercial?" % id
-        ]
-        md = md.copy()
-        md.append({'name': 'cloud', 'value': 'azure-public'})
+        ## ... in Azure Commercial?   
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': _b(id) + self.answer_where_preview_in(id, 'azure-public'),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': 
+                [ f"{word}is {id} in preview in Azure Commercial?" for word in ['','Where '] ] +
+                [ f"{word}is {id} in preview in Azure Public?" for word in ['','Where '] ],
+            'metadata': md + [md_azpub]
         })
 
-        ## answer 3
-        a = _b(id) + self.answer_where_preview_in(id, 'azure-government')
-        a_id = len(self.__qna)
-        qs = [
-            "Is %s in preview in Azure Government?" % id,
-            "Where is %s in preview in Azure Government?" % id,
-            "Is %s in preview in MAG?" % id,
-            "Where is %s in preview in MAG?" % id,
-        ]
-        md = md.copy()
-        md.pop()
-        md.append({'name': 'cloud', 'value': 'azure-government'})
+        ## ... in Azure Government?  
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': _b(id) + self.answer_where_preview_in(id, 'azure-government'),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions':
+                [ f"{word}is {id} in preview in Azure Government?" for word in ['','Where '] ] +
+                [ f"{word}is {id} in preview in MAG?" for word in ['','Where '] ]
+            ,
+            'metadata': md + [md_azgov]
         })
 
     def __hydrate_expected_qna(self, id):
 
         md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
-        md_type = {'name': 'questionType', 'value': 'scopes'}
+        md_type = {'name': 'questionType', 'value': 'expected-question'}
         md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
         md_azpub = {'name': 'cloud', 'value': 'azure-public'}
         md_azgov = {'name': 'cloud', 'value': 'azure-government'}
@@ -257,7 +235,9 @@ class QnABruteForce:
             'id': len(self.__qna),
             'answer':  _b(id) + self.answer_where_expected_ga_in(id, 'azure-public'),
             'source': QnA_SOURCE,
-            'questions': [f"When is {id} expected to be {word} in Azure Commercial" for word in ['available', 'ga', 'GA'] ],
+            'questions': 
+                [f"When is {id} expected to be {word} in Azure Commercial" for word in ['available', 'ga', 'GA'] ] +
+                [f"When is {id} expected to be {word} in Azure Public" for word in ['available', 'ga', 'GA'] ],
             'metadata': md + [md_azpub]
         })
 
@@ -275,7 +255,7 @@ class QnABruteForce:
     def __hydrate_scopes_qna(self, id):
 
         md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
-        md_type = {'name': 'questionType', 'value': 'scopes'}
+        md_type = {'name': 'questionType', 'value': 'scope-question'}
         md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
         md_azpub = {'name': 'cloud', 'value': 'azure-public'}
         md_azgov = {'name': 'cloud', 'value': 'azure-government'}
