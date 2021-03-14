@@ -87,13 +87,7 @@ class QnABruteForce:
 
         md = [md_prod, md_type, md_test]
         
-        prompt_scope = {
-            'DisplayOrder':1,
-            'DisplayText': "at which scopes / impact levels?"
-        }
-
         ## Is {id} available?
-        prompt_scope['QnaId'] = ids_scopes[0]
         self.__qna.append({
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_ga(id),
@@ -105,12 +99,11 @@ class QnABruteForce:
             'metadata': md.copy(),
             'context': {
                 'isContextOnly': False,
-                'prompts': [prompt_scope.copy()]
+                'prompts':  self.__helper_get_scope_prompt (id, ids_scopes[0])
             }
         })
 
         ## answer 2
-        prompt_scope['QnaId'] = ids_scopes[1]    
         self.__qna.append({
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_ga_in(id, 'azure-public'),
@@ -119,17 +112,17 @@ class QnABruteForce:
                 f"{prefix} {id} {word} in {cloud_name}" 
                     for prefix in ['Is', 'What regions is', 'Where is']
                     for word in ['available', 'GA', 'ga', ''] 
-                    for cloud_name in ['Azure Commercial', 'Azure Public']  
+                    for cloud_name in ['Azure Commercial', 'Azure Public', 'Commercial', 'Public', 'Pub', 'GCC']  
                 ],
             'metadata': md + [ md_azpub ],
             'context': {
                 'isContextOnly': False,
-                'prompts': [prompt_scope.copy()]
+                'prompts': self.__helper_get_scope_prompt (id, ids_scopes[1], 'azure-public')
+                
             }
         })
 
         ## answer 3    
-        prompt_scope['QnaId'] = ids_scopes[2]      
         self.__qna.append({
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_ga_in(id, 'azure-government'),
@@ -138,16 +131,29 @@ class QnABruteForce:
                 f"{prefix} {id} {word} in {cloud_name}" 
                     for prefix in ['Is', 'What regions is', 'Where is']
                     for word in ['available', 'GA', 'ga', ''] 
-                    for cloud_name in ['Azure Government', 'MAG']  
+                    for cloud_name in ['Azure Government', 'Gov', 'MAG']  
                 ],
             'metadata': md + [ md_azgov ],
             'context': {
                 'isContextOnly': False,
-                'prompts': [prompt_scope.copy()]
+                'prompts': self.__helper_get_scope_prompt (id, ids_scopes[2], 'azure-government')
+            
             }
         })
 
         # yapf: enable
+
+    def __helper_get_scope_prompt (self, id, id_scope, cloud=""):
+        scope_list = self.__az.getProductScopes(id, cloud)
+
+        if (len(scope_list) > -1):  # use this pattern for other follow-up questions that you want to skip; change this to 0
+            return [{
+                'DisplayOrder': 1,
+                'DisplayText': "at which scopes / impact levels?",
+                'QnaId': id_scope
+            }]
+        
+        return []
 
     def __hydrate_preview_qna(self, id):
 
@@ -255,10 +261,10 @@ class QnABruteForce:
         ## answer 1
         id_all_scopes = len(self.__qna)
         self.__qna.append({
-            'id':           id_all_scopes,
-            'answer':       _b(id) + self.answer_which_scopes(id),
-            'source':       QnA_SOURCE,
-            'questions':    [
+            'id': id_all_scopes,
+            'answer': _b(id) + self.answer_which_scopes(id),
+            'source': QnA_SOURCE,
+            'questions': [
                 f"Which audit scopes is {id} at?",
                 f"Which scopes is {id} at?",
                 f"Which impact levels is {id} at?"
@@ -270,8 +276,8 @@ class QnABruteForce:
         id_azpub = len(self.__qna)
         self.__qna.append({
             'id': id_azpub,
-            'answer':        f"{_b(id)}{self.answer_which_scopes_in_cloud(id, 'azure-public')}",
-            'source':            QnA_SOURCE,
+            'answer': f"{_b(id)}{self.answer_which_scopes_in_cloud(id, 'azure-public')}",
+            'source': QnA_SOURCE,
             'questions': [
                 f"Which audit scopes is {id} at in Azure Commercial?",
                 f"Which impact levels is {id} at in Azure Commercial?"
