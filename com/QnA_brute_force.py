@@ -1,7 +1,7 @@
 from azure_data_scraper.az_product_info import AzProductInfo
 from azure.cognitiveservices.knowledge.qnamaker.models import (QnADTO, MetadataDTO)
 
-FUNC_TEST_NUM = "0004"
+FUNC_TEST_NUM = "0005"
 
 
 def list_to_markdown(in_list=None, one_line=False) -> str:
@@ -13,14 +13,22 @@ def list_to_markdown(in_list=None, one_line=False) -> str:
     if len(in_list) > 3: one_line = True
 
     if one_line:
-        return "\\n * %s \\n\\n" % str(in_list).replace('[', '').replace(']', '').replace('\'', '')
+        return "\n * %s \n\n" % str(in_list).replace('[', '').replace(']', '').replace('\'', '')
 
     a = ""
     for item in in_list:
-        a = a + "\\n * %s" % item
+        a = a + "\n * %s" % item
 
-    a = a + "\\n\\n"
+    a = a + "\n\n"
     return a
+
+
+def _b(text):
+    return f"**{text}**"
+
+
+def _i(text):
+    return f"*{text}*"
 
 
 class QnABruteForce:
@@ -58,10 +66,10 @@ class QnABruteForce:
 
         ## answer 1
         # a = self.answer_is_ga(id)
-        a = id + self.answer_where_ga(id)
+        a = _b(id) + self.answer_where_ga(id)
         a_id = len(self.__qna)
         qs = [
-            "Is %s ga?" % id, 
+            "Is %s ga?" % id,
             "Is %s available?" % id,
             "What regions is %s available in?" % id,
             "What regions is %s ga in?" % id,
@@ -80,10 +88,10 @@ class QnABruteForce:
 
         ## answer 2
         # a = self.answer_is_ga_in_cloud(id, 'azure-public')
-        a = id + self.answer_where_ga_in (id, 'azure-public')
+        a = _b(id) + self.answer_where_ga_in(id, 'azure-public')
         a_id = len(self.__qna)
         qs = [
-            "Is %s available in Azure Commercial?" % id, 
+            "Is %s available in Azure Commercial?" % id,
             "Is %s GA in Azure Commercial?" % id,
             "Is %s ga in Azure Commercial?" % id,
             "Is %s in Azure Commercial?" % id,
@@ -105,7 +113,7 @@ class QnABruteForce:
 
         ## answer 3
         # a = self.answer_is_ga_in_cloud(id, 'azure-government')
-        a = id + self.answer_where_ga_in(id, 'azure-government')
+        a = _b(id) + self.answer_where_ga_in(id, 'azure-government')
         a_id = len(self.__qna)
         qs = [
             "Is %s available in Azure Government?" % id,
@@ -150,7 +158,7 @@ class QnABruteForce:
         }]
 
         ## answer 1
-        a = id + self.answer_where_preview(id)
+        a = _b(id) + self.answer_where_preview(id)
         a_id = len(self.__qna)
         qs = ["Is %s in preview?" % id, "Where is %s in preview?" % id]
 
@@ -163,7 +171,7 @@ class QnABruteForce:
         })
 
         ## answer 2
-        a = id + self.answer_where_preview_in(id, 'azure-public')
+        a = _b(id) + self.answer_where_preview_in(id, 'azure-public')
         a_id = len(self.__qna)
         qs = [
             "Is %s in preview in Azure Commercial?" % id,
@@ -180,7 +188,7 @@ class QnABruteForce:
         })
 
         ## answer 3
-        a = id + self.answer_where_preview_in(id, 'azure-government')
+        a = _b(id) + self.answer_where_preview_in(id, 'azure-government')
         a_id = len(self.__qna)
         qs = [
             "Is %s in preview in Azure Government?" % id,
@@ -213,7 +221,7 @@ class QnABruteForce:
         }]
 
         ## answer 1
-        a = id + self.answer_where_expected_ga(id)
+        a = _b(id) + self.answer_where_expected_ga(id)
         a_id = len(self.__qna)
         qs = ["When is %s expected to be available?" % id, "When is %s expected to be ga?" % id]
 
@@ -226,7 +234,7 @@ class QnABruteForce:
         })
 
         ## answer 2
-        a = id + self.answer_where_expected_ga_in(id, 'azure-public')
+        a = _b(id) + self.answer_where_expected_ga_in(id, 'azure-public')
         a_id = len(self.__qna)
         qs = [
             "When is %s expected to be available in Azure Commercial?" % id,
@@ -243,7 +251,7 @@ class QnABruteForce:
         })
 
         ## answer 3
-        a = id + self.answer_where_expected_ga_in(id, 'azure-government')
+        a = _b(id) + self.answer_where_expected_ga_in(id, 'azure-government')
         a_id = len(self.__qna)
         qs = [
             "When is %s expected to be available in Azure Government?" % id,
@@ -296,7 +304,7 @@ class QnABruteForce:
 
     def answer_where_ga(self, id):
         return (
-            self.answer_where_ga_in(id, 'azure-public') + '\\n\\n' + 'It' +
+            self.answer_where_ga_in(id, 'azure-public') + '\n\n' + 'It' +
             self.answer_where_ga_in(id, 'azure-government')
         )
 
@@ -316,13 +324,13 @@ class QnABruteForce:
         preview = "However, it" + preview
 
         if "is not" not in preview:
-            ans = ans + "\\n\\n" + preview
+            ans = ans + "\n\n" + preview
 
         expected = self.answer_where_expected_ga_in(id, cloud)
         expected = "It" + expected
 
         if "is not" not in expected:
-            ans = ans + "\\n\\n" + expected
+            ans = ans + "\n\n" + expected
 
         return ans
 
@@ -338,8 +346,8 @@ class QnABruteForce:
             return az_pub + " However, it" + az_gov
 
         return (
-            " is ***In Preview*** in *both* Azure Commercial and Azure Government.\\n\\n" + "It" +
-            az_pub + "\\n\\n" + "It" + az_gov
+            " is ***In Preview*** in *both* Azure Commercial and Azure Government.\n\n" + "It" +
+            az_pub + "\n\n" + "It" + az_gov
         )
 
     def answer_where_preview_in(self, id, cloud):
@@ -362,7 +370,7 @@ class QnABruteForce:
         elif ("not" in az_gov):
             return az_pub + " However, it" + az_gov
 
-        return (az_pub + "\\n\\n" + "It" + az_gov)
+        return (az_pub + "\n\n" + "It" + az_gov)
 
     def answer_where_expected_ga_in(self, id, cloud):
         ans = ""
@@ -418,7 +426,7 @@ class QnABruteForce:
     def dump(self):
         return self.__az.product_list()
 
-    ##########################
+    ########################## --------------------------------------------------------------------------------------------------------
 
     def qnaGetAvailable(self):
 
