@@ -47,10 +47,34 @@ class QnABruteForce:
             print(q, "\t", a)
 
     def __hydrate_qna(self):
+        self.__hydrate_summary_info()
+
         for id in self.__az.products_list():
             self.__hydrate_available_qna(id)
             self.__hydrate_preview_qna(id)
             self.__hydrate_expected_qna(id)
+
+    def __hydrate_summary_info(self):
+        md = [{
+            'name': 'questionType',
+            'value': 'summary'
+        }, {
+            'name': 'functiontest',
+            'value': FUNC_TEST_NUM
+        }]
+
+        ## answer 1
+        a = self.__answer_what_services()
+        a_id = len(self.__qna)
+        qs = ["What services do you know about?"]
+
+        self.__qna.append({
+            'id': a_id,
+            'answer': a,
+            'source': 'Auto Answers',
+            'questions': qs,
+            'metadata': md
+        })
 
     def __hydrate_available_qna(self, id):
         md = [{
@@ -81,7 +105,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Availability Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
@@ -106,7 +130,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Availability Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
@@ -139,7 +163,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Availability Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
@@ -165,7 +189,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Preview Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
@@ -182,7 +206,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Preview Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
@@ -202,7 +226,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Preview Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
@@ -228,7 +252,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Expected Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
@@ -245,7 +269,7 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Expected Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
@@ -265,10 +289,16 @@ class QnABruteForce:
         self.__qna.append({
             'id': a_id,
             'answer': a,
-            'source': 'Expected Answers',
+            'source': 'Auto Answers',
             'questions': qs,
             'metadata': md
         })
+
+    def __answer_what_services(self):
+        return "I know about the following services:" + list_to_markdown(self.__az.services_list())
+
+    def __answer_what_services_in_cloud(self, cloud):
+        pass
 
     '''
     def answer_is_ga(self, id):
@@ -311,6 +341,9 @@ class QnABruteForce:
     def answer_where_ga_in(self, id, cloud):
         cloud_name = self.__cloud_name(cloud)
         regions = self.__az.getProductAvailableRegions(id, cloud)
+
+        if "non-regional" in regions or "usgov-non-regional" in regions:
+            return f" is GA in {cloud_name}. It is {_i('non-regional')} and not tied to a specific region."
 
         # return regions
         if len(regions) > 0:
@@ -415,8 +448,8 @@ class QnABruteForce:
     """
 
     def __cloud_name(self, cloud) -> str:
-        if (cloud == 'azure-public'): return "*Azure Commercial*"
-        if (cloud == 'azure-government'): return "*Azure Government*"
+        if (cloud == 'azure-public'): return _i("Azure Commercial")
+        if (cloud == 'azure-government'): return _i("Azure Government")
 
         raise Exception("Unknown cloud", cloud)
 
