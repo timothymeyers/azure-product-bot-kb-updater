@@ -372,7 +372,8 @@ class QnABruteForce:
         for cloud in cloud_list:
             md_questions = [ f"Is {id} at {il} in {self.__cloud_name(cloud)}?" for il in names ]
 
-            if cloud == 'azure-government': md_questions + [ f"Is {id} at {il} in MAG?" for il in names ]
+            if cloud == 'azure-government': 
+                md_questions = md_questions + [ f"Is {id} at {il} in MAG?" for il in names ]
 
             self.__qna.append({
                 'id': len(self.__qna),
