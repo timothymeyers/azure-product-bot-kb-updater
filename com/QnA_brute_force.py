@@ -1,7 +1,7 @@
 from azure_data_scraper.az_product_info import AzProductInfo
 from azure.cognitiveservices.knowledge.qnamaker.models import (QnADTO, MetadataDTO)
 
-FUNC_TEST_NUM = "0005"
+FUNC_TEST_NUM = "0006"
 QnA_SOURCE = "QnA Brute Force"
 
 
@@ -235,183 +235,173 @@ class QnABruteForce:
 
     def __hydrate_expected_qna(self, id):
 
-        md = [{
-            'name': 'product',
-            'value': id.replace('|', ' ').replace(':', ' ')
-        }, {
-            'name': 'questionType',
-            'value': 'ga-expected'
-        }, {
-            'name': 'functiontest',
-            'value': FUNC_TEST_NUM
-        }]
+        md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
+        md_type = {'name': 'questionType', 'value': 'scopes'}
+        md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
+        md_azpub = {'name': 'cloud', 'value': 'azure-public'}
+        md_azgov = {'name': 'cloud', 'value': 'azure-government'}
 
-        ## answer 1
-        a = _b(id) + self.answer_where_expected_ga(id)
-        a_id = len(self.__qna)
-        qs = ["When is %s expected to be available?" % id, "When is %s expected to be ga?" % id]
+        md = [md_prod, md_type, md_test]
 
+        ## When is {id} expected to be available?
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': _b(id) + self.answer_where_expected_ga(id),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': [f"When is {id} expected to be {word}" for word in ['available', 'ga', 'GA'] ],
+            'metadata': md.copy()
         })
 
-        ## answer 2
-        a = _b(id) + self.answer_where_expected_ga_in(id, 'azure-public')
-        a_id = len(self.__qna)
-        qs = [
-            "When is %s expected to be available in Azure Commercial?" % id,
-            "When is %s expected to be ga in Azure Commercial?" % id
-        ]
-        md = md.copy()
-        md.append({'name': 'cloud', 'value': 'azure-public'})
+        ## ... in Azure Commercial?     
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer':  _b(id) + self.answer_where_expected_ga_in(id, 'azure-public'),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': [f"When is {id} expected to be {word} in Azure Commercial" for word in ['available', 'ga', 'GA'] ],
+            'metadata': md + [md_azpub]
         })
 
-        ## answer 3
-        a = _b(id) + self.answer_where_expected_ga_in(id, 'azure-government')
-        a_id = len(self.__qna)
-        qs = [
-            "When is %s expected to be available in Azure Government?" % id,
-            "When is %s expected to be available in MAG?" % id,
-            "When is %s expected to be ga in Azure Government?" % id,
-            "When is %s expected to be ga in MAG?" % id
-        ]
-        md = md.copy()
-        md.pop()
-        md.append({'name': 'cloud', 'value': 'azure-government'})
+        ## ... in Azure Government?
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer':  _b(id) + self.answer_where_expected_ga_in(id, 'azure-government'),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': 
+                [f"When is {id} expected to be {word} in Azure Government" for word in ['available', 'ga', 'GA'] ] + 
+                [f"When is {id} expected to be {word} in MAG" for word in ['available', 'ga', 'GA'] ],
+            'metadata': md + [md_azgov]
         })
 
     def __hydrate_scopes_qna(self, id):
 
-        md = [{
-            'name': 'product',
-            'value': id.replace('|', ' ').replace(':', ' ')
-        }, {
-            'name': 'questionType',
-            'value': 'scopes'
-        }, {
-            'name': 'functiontest',
-            'value': FUNC_TEST_NUM
-        }]
+        md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
+        md_type = {'name': 'questionType', 'value': 'scopes'}
+        md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
+        md_azpub = {'name': 'cloud', 'value': 'azure-public'}
+        md_azgov = {'name': 'cloud', 'value': 'azure-government'}
+
+        md = [md_prod, md_type, md_test]
 
         ## answer 1
-        a = _b(id) + self.answer_which_scopes(id)
-        a_id = len(self.__qna)
-        qs = [f"Which audit scopes is {id} at?", f"Which impact levels is {id} at?"]
-
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
-            'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'id':           len(self.__qna),
+            'answer':       _b(id) + self.answer_which_scopes(id),
+            'source':       QnA_SOURCE,
+            'questions':    [
+                f"Which audit scopes is {id} at?", 
+                f"Which scopes is {id} at?",
+                f"Which impact levels is {id} at?"
+            ],
+            'metadata': md.copy()
         })
 
         ## answer 2
-        a = _b(id) + self.answer_which_scopes_in_cloud(id, 'azure-public')
-        a_id = len(self.__qna)
-        qs = [
-            f"Which audit scopes is {id} at in Azure Commercial?",
-            f"Which impact levels is {id} at in Azure Commercial?"
-        ]
-        md = md.copy()
-        md.append({'name': 'cloud', 'value': 'azure-public'})
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
-            'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'id':        len(self.__qna),
+            'answer':        f"{_b(id)}{self.answer_which_scopes_in_cloud(id, 'azure-public')}",
+            'source':            QnA_SOURCE,
+            'questions': [
+                f"Which audit scopes is {id} at in Azure Commercial?",
+                f"Which impact levels is {id} at in Azure Commercial?"
+            ],
+            'metadata': md + [md_azpub]
         })
 
         ## answer 3
-        a = _b(id) + self.answer_which_scopes_in_cloud(id, 'azure-government')
-        a_id = len(self.__qna)
-        qs = [
-            f"Which audit scopes is {id} at in Azure Government?",
-            f"Which impact levels is {id} at in Azure Government?",
-            f"Which audit scopes is {id} at in MAG?",
-            f"Which impact levels is {id} at in MAG?",
-        ]
-        md = md.copy()
-        md.pop()
-        md.append({'name': 'cloud', 'value': 'azure-government'})
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': f"{_b(id)}{self.answer_which_scopes_in_cloud(id, 'azure-government')}",
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': [
+                f"Which audit scopes is {id} at in Azure Government?",
+                f"Which impact levels is {id} at in Azure Government?",
+                f"Which audit scopes is {id} at in MAG?",
+                f"Which impact levels is {id} at in MAG?",
+            ],
+            'metadata': md + [md_azgov]
         })
+
 
         ## Each IL in each cloud ? ------------------
         ## answer 4
+        
+        #self.__helper_hydrate_is_scope(scope, names, cloud_list, metadata_starter)
 
-        for il in [
-            'IL2', 'IL 2', 'DoD CC SRG IL 2', 'IL4', 'IL 4', 'DoD CC SRG IL 4', 'IL5', 'IL 5',
-            'DoD CC SRG IL 5', 'IL6', 'IL 6', 'DoD CC SRG IL 6', 'FedRAMP Moderate', 'FedRAMP High'
-        ]:
-            a = self.answer_is_at_scope(id, il)
-            a_id = len(self.__qna)
-            qs = [
-                f"Is {id} at {il}?",
-            ]
-            md = md.copy()
-            md.pop()
+        self.__helper_hydrate_is_scope(id,
+            'IL2', 
+            ['IL2', 'IL 2', 'DoD CC SRG IL 2'],
+            ['azure-public','azure-government'],
+            md)
+
+        self.__helper_hydrate_is_scope(id,
+            'IL4', 
+            ['IL4', 'IL 4', 'DoD CC SRG IL 4'],
+            ['azure-government'],
+            md)
+
+        self.__helper_hydrate_is_scope(id,
+            'IL5', 
+            ['IL5', 'IL 5', 'DoD CC SRG IL 5 (Azure Gov)', 'DoD CC SRG IL 5 (Azure DoD)',
+            'IL5 in Gov', 'IL5 in DOD', 'DoD CC SRG IL 5'],
+            ['azure-government'],
+            md)
+
+        self.__helper_hydrate_is_scope(id,
+            'IL6', 
+            ['IL6', 'IL 6', 'DoD CC SRG IL 6'],
+            ['azure-government'],
+            md)
+
+        self.__helper_hydrate_is_scope(id,
+            'FedRAMP Moderate', 
+            ['FedRAMP Moderate'],
+            ['azure-public'],
+            md)
+
+
+        self.__helper_hydrate_is_scope(id,
+            'FedRAMP High', 
+            ['FedRAMP High'],
+            ['azure-public', 'azure-government'],
+            md)
+
+
+    def __helper_hydrate_is_scope(self, id, scope, names, cloud_list, metadata_starter):
+        md_scope = {'name':'scope', 'value': scope }
+
+        md_azpub = {'name': 'cloud', 'value': 'azure-public'}
+        md_azgov = {'name': 'cloud', 'value': 'azure-government'}
+        md_cloud = {
+            'azure-public' : md_azpub,
+            'azure-government': md_azgov
+        }        
+
+        md_question_starter = []
+
+        if len(cloud_list) > 1:
             self.__qna.append({
-                'id': a_id,
-                'answer': a,
+                'id': len(self.__qna),
+                'answer': self.answer_is_at_scope(id, scope),
                 'source': QnA_SOURCE,
-                'questions': qs,
-                'metadata': md
+                'questions': [ f"Is {id} at {il}?" for il in names ],
+                'metadata': metadata_starter + [md_scope]
+            })
+        else:
+           md_question_starter = [ f"Is {id} at {il}?" for il in names ]
+
+        for cloud in cloud_list:
+            md_questions = [ f"Is {id} at {il} in {self.__cloud_name(cloud)}?" for il in names ]
+
+            if cloud == 'azure-government': md_questions + [ f"Is {id} at {il} in MAG?" for il in names ]
+
+            self.__qna.append({
+                'id': len(self.__qna),
+                'answer': self.answer_is_at_scope_in_cloud(id, scope, cloud),
+                'source': QnA_SOURCE,
+                'questions': md_question_starter + md_questions,
+                'metadata': metadata_starter + [md_scope, md_cloud[cloud]]
             })
 
-            a = self.answer_is_at_scope_in_cloud(id, il, 'azure-public')
-            a_id = len(self.__qna)
-            qs = [
-                f"Is {id} at {il} in Azure Commercial?",
-            ]
-            md = md.copy()
-            md.append({'name': 'cloud', 'value': 'azure-commercial'})
-            self.__qna.append({
-                'id': a_id,
-                'answer': a,
-                'source': QnA_SOURCE,
-                'questions': qs,
-                'metadata': md
-            })
-
-            a = self.answer_is_at_scope_in_cloud(id, il, 'azure-government')
-            a_id = len(self.__qna)
-            qs = [
-                f"Is {id} at {il} in Azure Government?",
-                f"Is {id} at {il} in MAG?",
-            ]
-            md = md.copy()
-            md.pop()
-            md.append({'name': 'cloud', 'value': 'azure-government'})
-            self.__qna.append({
-                'id': a_id,
-                'answer': a,
-                'source': QnA_SOURCE,
-                'questions': qs,
-                'metadata': md
-            })
 
     def __answer_what_services(self):
         return "I know about the following services:" + list_to_markdown(self.__az.services_list())
@@ -532,7 +522,7 @@ class QnABruteForce:
 
         if available:
             regions_ga = list_to_markdown(self.__az.getProductAvailableRegions(id, cloud))
-            ans = " is already GA in %s in %s. " % (cloud_name, regions_ga)
+            ans = " is already GA in %s in %s" % (cloud_name, regions_ga)
 
             if (len(expected_ga) == 0):
                 return ans
@@ -548,28 +538,23 @@ class QnABruteForce:
         return " is not currently scheduled for GA in %s. " % cloud_name
 
     def answer_is_at_scope(self, id, scope):
-        az_pub = self.answer_which_scopes_in_cloud(id, 'azure-public')
-        az_gov = self.answer_which_scopes_in_cloud(id, 'azure-government')
+        az_pub = self.answer_is_at_scope_in_cloud(id, scope, 'azure-public')
+        az_gov = self.answer_is_at_scope_in_cloud(id, scope, 'azure-government')
 
-        if "il 2" in scope.lower() or "il2" in scope.lower(): scope_short = "IL 2"
-        elif "il 4" in scope.lower() or "il4" in scope.lower(): scope_short = "IL 4"
-        elif "il 5" in scope.lower() or "il5" in scope.lower(): scope_short = "IL 5"
-        elif "il 6" in scope.lower() or "il6" in scope.lower(): scope_short = "IL 6"
-        else: scope_short = scope
-
-        in_az_pub = scope_short in az_pub
-        in_az_gov = scope_short in az_gov
+        in_az_pub = "Yes" in az_pub
+        in_az_gov = "Yes" in az_gov
 
         if in_az_gov and in_az_pub:
             return f"Yes. {_b(id)} is at {scope} in both {_i('Azure Commercial')} and {_i('Azure Government')}"
         elif in_az_pub:
-            return f"Yes. {_b(id)}{az_pub}"
+            return az_pub
         elif in_az_gov:
-            return f"Yes. {_b(id)}{az_gov}"
+            return az_gov
 
         return (
             f"No, it does not look like {_b(id)} is at {scope} in either {_i('Azure Commercial')} and {_i('Azure Government')}"
-            + "\n\nIt" + az_pub + "\n\nIt" + az_gov
+            + "\n\nIt" + self.answer_which_scopes_in_cloud(id, 'azure-public') + "\n\nIt" +
+            self.answer_which_scopes_in_cloud(id, 'azure-government')
         )
 
     def answer_is_at_scope_in_cloud(self, id, scope, cloud):
@@ -581,15 +566,18 @@ class QnABruteForce:
         elif "il 6" in scope.lower() or "il6" in scope.lower(): scope_short = "IL 6"
         else: scope_short = scope
 
-        if scope_short in scopes: return f"Yes, {_b(id)}{scopes}"
-        else: return f"No, {_b(id)}{scopes}"
+        if scope_short in scopes:
+            return f"Yes, {_b(id)} is at {scope_short} in {self.__cloud_name(cloud)}"
+        else:
+            return ( 
+                f"No, {_b(id)} is not at {scope_short} in {self.__cloud_name(cloud)}" 
+                + f"\n\nIt{self.answer_which_scopes_in_cloud(id, cloud)}"
+            )
 
     def answer_which_scopes(self, id):
         az_pub = self.answer_which_scopes_in_cloud(id, 'azure-public')
         az_gov = self.answer_which_scopes_in_cloud(id, 'azure-government')
 
-        # if "following scopes" in az_pub and "following scopes" in az_gov:
-        #return _b(id) + az_pub + "\n\nIt" + az_gov
         return az_pub + "\n\nIt" + az_gov
 
     def answer_which_scopes_in_cloud(self, id, cloud):
@@ -633,8 +621,6 @@ class QnABruteForce:
         return self.__az.product_list()
 
     ########################## --------------------------------------------------------------------------------------------------------
-
-
     """
     Is XXX available?
     Is XXX ga?
