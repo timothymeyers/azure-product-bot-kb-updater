@@ -171,6 +171,9 @@ class QnABruteForce:
         })
 
     def __hydrate_preview_qna(self, id):
+
+        # yapf: disable
+
         md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
         md_type = {'name': 'questionType', 'value': 'preview-quesiton'}
         md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
@@ -211,7 +214,11 @@ class QnABruteForce:
             'metadata': md + [md_azgov]
         })
 
+         # yapf: enable
+
     def __hydrate_expected_qna(self, id):
+        
+        # yapf: disable
 
         md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
         md_type = {'name': 'questionType', 'value': 'expected-question'}
@@ -252,7 +259,11 @@ class QnABruteForce:
             'metadata': md + [md_azgov]
         })
 
+        # yapf: enable
+
     def __hydrate_scopes_qna(self, id):
+
+        # yapf: disable
 
         md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
         md_type = {'name': 'questionType', 'value': 'scope-question'}
@@ -341,8 +352,13 @@ class QnABruteForce:
             ['azure-public', 'azure-government'],
             md)
 
+        # yapf: enable
+
 
     def __helper_hydrate_is_scope(self, id, scope, names, cloud_list, metadata_starter):
+        
+        # yapf: disable
+        
         md_scope = {'name':'scope', 'value': scope }
 
         md_azpub = {'name': 'cloud', 'value': 'azure-public'}
@@ -378,6 +394,8 @@ class QnABruteForce:
                 'questions': md_question_starter + md_questions,
                 'metadata': metadata_starter + [md_scope, md_cloud[cloud]]
             })
+        
+        # yapf: enable
 
 
     def __answer_what_services(self):
