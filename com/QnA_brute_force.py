@@ -23,11 +23,13 @@ def list_to_markdown(in_list=None, one_line=False) -> str:
     a = a + "\n\n"
     return a
 
+
 # yapf: disable
 # markdown helpers
 def _b(text): return f"**{text}**"
 def _i(text): return f"*{text}*"
 # yapf: enable
+
 
 class QnABruteForce:
     def __init__(self, az=AzProductInfo()):
@@ -52,7 +54,7 @@ class QnABruteForce:
             self.__hydrate_available_qna(id, ids_scopes)
             self.__hydrate_preview_qna(id)
             self.__hydrate_expected_qna(id)
-            
+            self.__hydrate_regions_qna(id)
 
     def __hydrate_summary_info(self):
         md = [{
@@ -86,13 +88,13 @@ class QnABruteForce:
         md_azgov = {'name': 'cloud', 'value': 'azure-government'}
 
         md = [md_prod, md_type, md_test]
-        
+
         ## Is {id} available?
         self.__qna.append({
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_ga(id),
             'source': QnA_SOURCE,
-            'questions': 
+            'questions':
                 [ f"Is {id} {word}?" for word in ['ga','GA','available'] ] +
                 [ f"What regions is {id} {word} in?" for word in ['ga','GA','available'] ] +
                 [ f"Where is {id} {word}?" for word in ['ga in','GA in','available in', '' ] ],
@@ -108,51 +110,53 @@ class QnABruteForce:
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_ga_in(id, 'azure-public'),
             'source': QnA_SOURCE,
-            'questions': [ 
-                f"{prefix} {id} {word} in {cloud_name}" 
+            'questions': [
+                f"{prefix} {id} {word} in {cloud_name}"
                     for prefix in ['Is', 'What regions is', 'Where is']
-                    for word in ['available', 'GA', 'ga', ''] 
-                    for cloud_name in ['Azure Commercial', 'Azure Public', 'Commercial', 'Public', 'Pub', 'GCC']  
+                    for word in ['available', 'GA', 'ga', '']
+                    for cloud_name in ['Azure Commercial', 'Azure Public', 'Commercial', 'Public', 'Pub', 'GCC']
                 ],
             'metadata': md + [ md_azpub ],
             'context': {
                 'isContextOnly': False,
                 'prompts': self.__helper_get_scope_prompt (id, ids_scopes[1], 'azure-public')
-                
+
             }
         })
 
-        ## answer 3    
+        ## answer 3
         self.__qna.append({
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_ga_in(id, 'azure-government'),
             'source': QnA_SOURCE,
-            'questions': [ 
-                f"{prefix} {id} {word} in {cloud_name}" 
+            'questions': [
+                f"{prefix} {id} {word} in {cloud_name}"
                     for prefix in ['Is', 'What regions is', 'Where is']
-                    for word in ['available', 'GA', 'ga', ''] 
-                    for cloud_name in ['Azure Government', 'Gov', 'MAG']  
+                    for word in ['available', 'GA', 'ga', '']
+                    for cloud_name in ['Azure Government', 'Gov', 'MAG']
                 ],
             'metadata': md + [ md_azgov ],
             'context': {
                 'isContextOnly': False,
                 'prompts': self.__helper_get_scope_prompt (id, ids_scopes[2], 'azure-government')
-            
+
             }
         })
 
         # yapf: enable
 
-    def __helper_get_scope_prompt (self, id, id_scope, cloud=""):
+    def __helper_get_scope_prompt(self, id, id_scope, cloud=""):
         scope_list = self.__az.getProductScopes(id, cloud)
 
-        if (len(scope_list) > -1):  # use this pattern for other follow-up questions that you want to skip; change this to 0
+        if (
+            len(scope_list) > -1
+        ):               # use this pattern for other follow-up questions that you want to skip; change this to 0
             return [{
                 'DisplayOrder': 1,
                 'DisplayText': "at which scopes / impact levels?",
                 'QnaId': id_scope
             }]
-        
+
         return []
 
     def __hydrate_preview_qna(self, id):
@@ -172,7 +176,7 @@ class QnABruteForce:
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_preview(id),
             'source': QnA_SOURCE,
-            'questions': [ f"{word}is {id} in preview?" for word in ['','Where '] ],
+            'questions': [ f"{word}is {id} preview?" for word in ['','Where '] ],
             'metadata': md.copy()
         })
 
@@ -182,8 +186,8 @@ class QnABruteForce:
             'answer': _b(id) + self.answer_where_preview_in(id, 'azure-public'),
             'source': QnA_SOURCE,
             'questions':
-                [ f"{word}is {id} in preview in Azure Commercial?" for word in ['','Where '] ] +
-                [ f"{word}is {id} in preview in Azure Public?" for word in ['','Where '] ],
+                [ f"{word}is {id} preview in Azure Commercial?" for word in ['','Where '] ] +
+                [ f"{word}is {id} preview in Azure Public?" for word in ['','Where '] ],
             'metadata': md + [md_azpub]
         })
 
@@ -193,8 +197,8 @@ class QnABruteForce:
             'answer': _b(id) + self.answer_where_preview_in(id, 'azure-government'),
             'source': QnA_SOURCE,
             'questions':
-                [ f"{word}is {id} in preview in Azure Government?" for word in ['','Where '] ] +
-                [ f"{word}is {id} in preview in MAG?" for word in ['','Where '] ]
+                [ f"{word}is {id} preview in Azure Government?" for word in ['','Where '] ] +
+                [ f"{word}is {id} preview in MAG?" for word in ['','Where '] ]
             ,
             'metadata': md + [md_azgov]
         })
@@ -344,6 +348,48 @@ class QnABruteForce:
 
         # yapf: enable
 
+
+    def __hydrate_regions_qna(self, id):
+        
+        # yapf: disable
+
+        md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
+        md_type = {'name': 'questionType', 'value': 'availability-question'}
+        md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
+
+        md = [md_prod, md_type, md_test]
+
+        ## Is {id} [ga, available, ''] in {region names}
+
+        for region in ["us-central", "us-east", "us-east-2", "us-north-central", "us-south-central", "us-west-central", "us-west", "us-west-2"]:
+            self.__qna.append({
+                'id': len(self.__qna),
+                'answer': self.answer_is_in_region(id, region, 'azure-public'),
+                'source': QnA_SOURCE,
+                'questions': [ 
+                    f"Is {id} {word} in {region_name}" 
+                        for word in ['ga', 'GA', 'available', '']
+                        for region_name in [ region, region.replace('-',''), region.replace('-', ' ') ]
+                ],
+                'metadata': md.copy()
+            })
+
+        for region in ["us-dod-central", "us-dod-east", "usgov-arizona", "usgov-texas", "usgov-virginia" ]:
+            self.__qna.append({
+                'id': len(self.__qna),
+                'answer': self.answer_is_in_region(id, region, 'azure-government'),
+                'source': QnA_SOURCE,
+                'questions': [ 
+                    f"Is {id} {word} in {region_name}" 
+                        for word in ['ga', 'GA', 'available', '']
+                        for region_name in [ region, region.replace('-',''), region.replace('-', ' ') ]
+                ],
+                'metadata': md.copy()
+            })
+
+        # yapf: enable
+
+
     def __helper_hydrate_is_scope(self, id, scope, names, cloud_list, metadata_starter):
 
         # yapf: disable
@@ -479,8 +525,11 @@ class QnABruteForce:
         cloud_name = self.__cloud_name(cloud)
         regions = self.__az.getProductPreviewRegions(id, cloud)
 
+        if "non-regional" in regions or "usgov-non_regional" in regions:
+            return f" is ***in preview*** in {cloud_name}. It is {_i('non-regional')} and not tied to a specific region."
+
         if len(regions) > 0:
-            return " is ***In Preview*** in %s in: %s" % (cloud_name, list_to_markdown(regions))
+            return " is ***in preview*** in %s in: %s" % (cloud_name, list_to_markdown(regions))
 
         return " is not in preview in %s" % cloud_name
 
@@ -588,24 +637,21 @@ class QnABruteForce:
 
         return f" does not have an audit scope or impact level info available yet for {cloud_name}."
 
-    """
-    def __answer_is_preview(self, id):
-       
+    def answer_is_in_region(self, id, region, cloud=""):
+        if self.__az.isProductAvailableInRegion(id, region):
+            return f"Yes. {_b(id)} is in {region}."
 
-        return
+        # TODO: Need to improve how non-regional products are handled
 
-    def __answer_is_preview_in_region(self, id, region):
-        # getProductPreviewRegions(self, prod, cloud="") -> list:
-        return
+        ga_ans = prev_ans = target_ans = ""
+        if self.__az.isProductAvailable(id):
+            ga_ans = "\n\nIt" + self.answer_where_ga_in(id, cloud)
+        if len(self.__az.getProductPreviewRegions(id,cloud)) > 0:
+            prev_ans = "\n\nIt" + self.answer_where_preview_in(id, cloud)
+        if len(self.__az.getProductRegionsGATargets(id,cloud)) > 0:
+            target_ans = "\n\nIt" + self.answer_where_expected_ga_in(id, cloud)
 
-    def __answer_is_expected_ga(self, id):
-        # getProductRegionsGATargets
-        return
-
-    def __answer_is_expected_ga_in_region(self, id, region):
-        # getProductRegionsGATargets
-        return
-    """
+        return f"No. {_b(id)} is not in {region}. {ga_ans}{prev_ans}{target_ans}"
 
     def __cloud_name(self, cloud) -> str:
         if (cloud == 'azure-public'): return _i("Azure Commercial")
@@ -620,48 +666,6 @@ class QnABruteForce:
         return self.__az.product_list()
 
     ########################## --------------------------------------------------------------------------------------------------------
-    """
-    Is XXX available?
-    Is XXX ga?
-    Is XXX ga in Azure Government?
-    Is XXX ga in Azure Commercial?
-    Is XXX available in Azure Government?
-    Is XXX available in Azure Commercial?
-    """
-
-    def answer_isGa(self, id, prod):
-        azpub = prod['azure-public']['available']
-        azgov = prod['azure-government']['available']
-
-        if (azpub and azgov):
-            return (
-                "**%s** is in both Azure Commercial and Azure Government.\\n\\n" % id +
-                self.answer_whatRegionsGaIn(id, "Azure Commercial", prod['azure-public']) +
-                "\\n\\n" +
-                self.answer_whatRegionsGaIn(id, "Azure Government", prod['azure-government'])
-            )
-        elif azpub:
-            return (
-                "**%s** is available in Azure Commercial, but not Azure Government.\\n\\n" % id +
-                self.answer_whatRegionsGaIn(id, "Azure Commercial", prod['azure-public'])
-            )
-        elif azgov:
-            return (
-                "**%s** is available in Azure Government, but not Azure Commercial.\\n\\n" % id +
-                self.answer_whatRegionsGaIn(id, "Azure Government", prod['azure-government'])
-            )
-
-        # return "**%s** is not available in either Azure Commercial or Azure Government" % id
-        return (
-            self.answer_whatRegionsGaIn(id, "Azure Commercial", prod['azure-public']) + "\\n\\n" +
-            self.answer_whatRegionsGaIn(id, "Azure Government", prod['azure-government'])
-        )
-
-    def answer_isGaIn(self, id, cloud_name, cloud_json):
-        if cloud_json['available']:
-            return ("Yes. " + self.answer_whatRegionsGaIn(id, cloud_name, cloud_json))
-
-        return self.answer_whatRegionsGaIn(id, cloud_name, cloud_json)
 
     """
     When is XXX expected to be available?
@@ -697,159 +701,7 @@ class QnABruteForce:
 
         return "**%s** is not currently scheduled for GA in *%s*. " % (id, cloud_name)
 
-    """
-    What regions are XXX available in?
-    What regions are XXX available in Azure Commercial?
-    What regions are XXX available in Azure Government?
-    """
 
-    def answer_whatRegionsGa(self, id, prod):
-        return (
-            self.answer_whatRegionsGaIn(id, "Azure Commercial", prod['azure-public']) + "\\n\\n" +
-            self.answer_whatRegionsGaIn(id, "Azure Government", prod['azure-government'])
-        )
-
-    def answer_whatRegionsGaIn(self, id, cloud_name, cloud_json):
-        regions = cloud_json['ga']
-        preview = cloud_json['preview']
-
-        if len(regions) > 0:
-            return "**%s** is GA in *%s* in: %s" % (id, cloud_name, list_to_markdown(regions))
-        else:
-            a = "**%s** is not currently GA in *%s*. " % (id, cloud_name)
-
-            if len(preview) > 0:
-                a = a + \
-                    " However, it is ***in preview*** in %s" % list_to_markdown(
-                        preview)
-
-            return a + self.answer_isExpectedToBeGaIn(id, cloud_name, cloud_json)
-
-    """
-    Is XXX in preview?
-    Is XXX in preview in Azure Government?
-    Is XXX in preview in Azure Commercial?
-    """
-
-    def answer_isPreview(self, id, prod):
-        return (
-            self.answer_isPreviewIn(id, "Azure Commercial", prod['azure-public']) + "\\n\\n" +
-            self.answer_isPreviewIn(id, "Azure Government", prod['azure-government'])
-        )
-
-    def answer_isPreviewIn(self, id, cloud_name, cloud_json):
-        avail = cloud_json['available']
-        preview = cloud_json['preview']
-        a = ""
-
-        if avail:
-            a = "**%s** is already available in *%s* in %s" % (
-                id, cloud_name, list_to_markdown(cloud_json['ga'])
-            )
-
-        if avail and len(preview) == 0:
-            return a
-        if len(preview) > 0:
-            return (
-                a + "\\n\\n"
-                "**%s** is in preview in *%s* in %s" % (id, cloud_name, list_to_markdown(preview))
-            )
-
-        return "**%s** is not currently in preview in *%s*. " % (id, cloud_name)
-
-    """
-    What scopes is XXX available at?
-    What scopes is XXX available at in Azure Commercial?
-    What scopes is XXX available at in Azure Government?
-    """
-
-    def answer_whatScopes(self, id, prod):
-        if 'service' in prod.keys():
-            return (
-                self.
-                answer_whatScopesIn(id, "Azure Commercial", prod['azure-public'], prod['service']) +
-                "\\n\\n" + self.answer_whatScopesIn(
-                    id, "Azure Government", prod['azure-government'], prod['service']
-                )
-            )
-
-        return (
-            self.answer_whatScopesIn(id, "Azure Commercial", prod['azure-public']) + "\\n\\n" +
-            self.answer_whatScopesIn(id, "Azure Government", prod['azure-government'])
-        )
-
-    def answer_whatScopesIn(self, id, cloud_name, cloud_json, svc=""):
-        scopes = cloud_json['scopes']
-
-        if len(scopes) > 0:
-            return "In *%s*, **%s** is available at %s" % (cloud_name, id, list_to_markdown(scopes))
-
-        else:
-            a = "I don't have any audit scope or impact level information about **%s** in *%s*. " % (
-                id, cloud_name
-            )
-
-            if svc != "":
-                if (cloud_name.__contains__("ov") or cloud_name.__contains__("MAG")):
-                    svc_json = self.__joined_data[svc]['azure-government']
-                else:
-                    svc_json = self.__joined_data[svc]['azure-public']
-
-                return (
-                    a + " However, it is a capability of %s. " % svc +
-                    "Here is what I know about *%s*'s audit scopes and impact levels:\\n\\n" % svc +
-                    self.answer_whatScopesIn(svc, cloud_name, svc_json)
-                )
-
-            return a
-
-    """
-    Is %s at %s?
-    Is %s at %s in %s?
-    """
-
-    def qnaGetScope(self):
-
-        for id in (maps.service_list + maps.capability_list):
-            for scope in (maps.us_scopes + maps.usgov_scopes):
-                if not scope.__contains__("Il5"):
-                    print(
-                        "Is %s at %s? \t" % (id, maps.scope_map[scope]),
-                        self.answer_isAtScope(id, scope)
-                    )
-
-            # Special IL5 Use Case
-            print("Is %s at IL5? \t" % id, self.answer_isAtIL5(id))
-
-        return
-
-    def answer_isAtScope(self, id, scope):
-
-        if (id in self.__scope_lookup[scope]):
-            return "Yes. **%s** is %s" % (id, maps.scope_map[scope])
-
-        return "No. **%s** is not at %s yet" % (id, maps.scope_map[scope])
-
-    def answer_isAtIL5(self, id):
-        # 'dodCcSrgIl5AzureGov': 'IL5 in Gov Regions',
-        # 'dodCcSrgIl5AzureDod': 'IL5 in DoD Regions',
-        gov = id in self.__scope_lookup['dodCcSrgIl5AzureGov']
-        dod = id in self.__scope_lookup['dodCcSrgIl5AzureDod']
-
-        if (gov and dod):
-            return "Yes, **%s** is IL5 in ***both*** Gov and DoD regions" % id
-        if (gov):
-            return "Yes. However, **%s** is IL5 ***in Gov regions only***." % id
-        if (dod):
-            return "Yes. However, **%s** is IL5 ***in DoD regions only***." % id
-
-        return "No. **%s** is not at IL5 yet" % id
-
-    def qnaGetRegions(self):
-        for id in (maps.service_list + maps.capability_list):
-            for region in (maps.us_regions + maps.usgov_regions + maps.usdod_regions):
-                if not region.__contains__("non-regional"):
-                    print("Is %s in %s? \t" % (id, region), self.answer_isInRegion(id, region))
 
     def answer_isInRegion(self, id, region):
 
