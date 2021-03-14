@@ -33,20 +33,68 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     KB_ID = os.environ['KB_ID']
     logging.info(f'Loaded KB ID: {KB_ID}')
 
+    path = SERVICE + METHOD + KB_ID
+
+    #method = '/knowledgebases/{0}/{1}/qna/'.format(KB_ID, 'test');
+    #path = SERVICE + method
+
+    # Download the KB - no longer necessary?
+    
+    result = get_qna(path, KB_SUBSCRIPTION_KEY)
+    result_json = json.loads(result)
+    num_answers = len(result_json['qnaDocuments'])
+    logging.info("download - " + str(num_answers))
+
+    my_list = [i['id'] for i in result_json['qnaDocuments']]
+    
+    logging.debug (my_list)    
+    
+
+    ## Delete all QnA Brute Force data
+
+    #req = {'delete': {'sources': ['QnA Brute Force']}}
+    req = {'delete': {'ids': my_list}}
+    content = json.dumps(req)
+    operation, result = update_kb(path, content, KB_SUBSCRIPTION_KEY)
+
+    '''
+    Iteratively gets the operation state, updating the knowledge base.
+    Once state is no longer "Running" or "NotStarted", the loop ends.
+    '''
+    done = False
+    while False == done:
+        path = SERVICE + operation
+        # Gets the status of the operation.
+        wait, status = check_status(path, KB_SUBSCRIPTION_KEY)
+        # Print status checks in JSON with presentable formatting
+        logging.info (pretty_print(status))
+
+        wait = 30
+
+        # Convert the JSON response into an object and get the value of the operationState field.
+        state = json.loads(status)['operationState']
+        # If the operation isn't finished, wait and query again.
+        if state == 'Running' or state == 'NotStarted':
+            logging.info ('Waiting ' + str(wait) + ' seconds...')
+            time.sleep (int(wait))
+        else:
+            done = True # request has been processed, if successful, knowledge base is updated
+    '''
+    '''
+    path = SERVICE + METHOD + KB_ID
     qna = QnABruteForce()
-    #req = {'qnaList':[]}
     req = {'qnaList': qna.qna()}
 
-    path = SERVICE + METHOD + KB_ID
     content = json.dumps(req)
+    
     # Replaces knowledge base
     logging.debug(pretty_print(content))
     result = replace_kb(path, content, KB_SUBSCRIPTION_KEY)
-    # Print request response in JSON with presentable formatting.
     logging.info("replace_db - " + pretty_print(result))
+
     result = publish_kb(path, '', KB_SUBSCRIPTION_KEY)
     logging.info("publish_db - " + pretty_print(result))
-    
+
     #### End Function Code #### ------------------------------------------------------------------
 
     if name:
@@ -83,7 +131,7 @@ Formats and indents JSON for display.
 
 def pretty_print(content):
     # Note: We convert content to and from an object so we can pretty-print it.
-    return json.dumps(json.loads(content), indent=4)
+    return json.dumps(json.loads(content), indent=2)
 
 
 '''
@@ -97,7 +145,7 @@ Sends a PUT HTTP request, to replace the knowledge base.
 
 
 def replace_kb(path, content, subscriptionKey):
-    logging.info('Calling ' + HOST + path + '.')
+    logging.info('Calling [replace_kb] ' + HOST + path + '.')
     headers = {
         'Ocp-Apim-Subscription-Key': subscriptionKey,
         'Content-Type': 'application/json',
@@ -124,7 +172,7 @@ Sends a POST HTTP request.
 
 
 def publish_kb(path, content, subscriptionKey):
-    logging.info('Calling ' + HOST + path + '.')
+    logging.info('Calling [publish_kb] ' + HOST + path + '.')
     headers = {
         'Ocp-Apim-Subscription-Key': subscriptionKey,
         'Content-Type': 'application/json',
@@ -138,3 +186,55 @@ def publish_kb(path, content, subscriptionKey):
         return json.dumps({'result': 'Success.'})
     else:
         return response.read()
+
+
+'''
+Sends a GET HTTP request.
+:param path: The URL path of your request.
+:type: string
+:return: The downloaded knowledge base.
+:rtype: string
+'''
+
+
+def get_qna(path, subscriptionKey):
+    path = path + '/test/qna/'
+    logging.info ('Calling [get_qna] ' + HOST + path + '.')
+    headers = {
+        'Ocp-Apim-Subscription-Key': subscriptionKey,
+    }
+    conn = http.client.HTTPSConnection(HOST)
+    conn.request("GET", path, '', headers)
+    response = conn.getresponse()
+    return response.read()
+
+
+def update_kb(path, content, subscriptionKey):
+    logging.info ('Calling [update_kb] ' + HOST + path + '.')
+    headers = {
+        'Ocp-Apim-Subscription-Key': subscriptionKey,
+        'Content-Type': 'application/json',
+        'Content-Length': len(content)
+    }
+    conn = http.client.HTTPSConnection(HOST)
+    conn.request("PATCH", path, content, headers)
+    response = conn.getresponse()
+    #return response.read()
+    return response.getheader('Location'), response.read()
+
+'''
+Gets the status of the specified QnA Maker operation.
+:param path: The URL of the request.
+:type: string
+:return: Header from retrying of the request (if retry is needed), response of the retry.
+:rtype: string, string
+'''
+def check_status (path, subscriptionKey):
+    logging.info ('Calling [check_status] ' + HOST + path + '.')
+    headers = {'Ocp-Apim-Subscription-Key': subscriptionKey}
+    conn = http.client.HTTPSConnection(HOST)
+    conn.request("GET", path, None, headers)
+    response = conn.getresponse ()
+    # If the operation is not finished, /operations returns an HTTP header named
+    # 'Retry-After' with the number of seconds to wait before querying the operation again.
+    return response.getheader('Retry-After'), response.read ()
