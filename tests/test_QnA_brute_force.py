@@ -53,19 +53,19 @@ def test_answer_where_ga_BOTH(qna, prod, answer):
 @pytest.mark.parametrize("prod", [('Full Service')])
 def test_answer_where_preview_in(qna, prod):
     ans = qna.answer_where_preview_in(prod, 'azure-public')
-    assert "is ***In Preview" in ans
+    assert "is ***in preview" in ans
     assert "Azure Commercial" in ans
     assert "gcc-prev-reg-1" in ans
 
     ans = qna.answer_where_preview_in(prod, 'azure-government')
-    assert "is ***In Preview" in ans
+    assert "is ***in preview" in ans
     assert "Azure Government" in ans
     assert "mag-prev-reg-1" in ans
 
 @pytest.mark.parametrize("prod", [('Full Service')])
 def test_answer_where_preview_BOTH (qna, prod):
     ans = qna.answer_where_preview (prod)
-    assert "is ***In Preview" in ans
+    assert "is ***in preview" in ans
     assert "*both*" in ans
 
 @pytest.mark.parametrize("prod", [('Full Service')])

@@ -517,7 +517,7 @@ class QnABruteForce:
             return az_pub + " However, it" + az_gov
 
         return (
-            " is ***In Preview*** in *both* Azure Commercial and Azure Government.\n\n" + "It" +
+            " is ***in preview*** in *both* Azure Commercial and Azure Government.\n\n" + "It" +
             az_pub + "\n\n" + "It" + az_gov
         )
 
