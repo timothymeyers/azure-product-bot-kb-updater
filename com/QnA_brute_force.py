@@ -23,14 +23,11 @@ def list_to_markdown(in_list=None, one_line=False) -> str:
     a = a + "\n\n"
     return a
 
-
-def _b(text):
-    return f"**{text}**"
-
-
-def _i(text):
-    return f"*{text}*"
-
+# yapf: disable
+# markdown helpers
+def _b(text): return f"**{text}**"
+def _i(text): return f"*{text}*"
+# yapf: enable
 
 class QnABruteForce:
     def __init__(self, az=AzProductInfo()):
@@ -51,10 +48,11 @@ class QnABruteForce:
         self.__hydrate_summary_info()
 
         for id in self.__az.products_list():
-            self.__hydrate_available_qna(id)
+            ids_scopes = self.__hydrate_scopes_qna(id)
+            self.__hydrate_available_qna(id, ids_scopes)
             self.__hydrate_preview_qna(id)
             self.__hydrate_expected_qna(id)
-            self.__hydrate_scopes_qna(id)
+            
 
     def __hydrate_summary_info(self):
         md = [{
@@ -78,97 +76,78 @@ class QnABruteForce:
             'metadata': md
         })
 
-    def __hydrate_available_qna(self, id):
-        md = [{
-            'name': 'product',
-            'value': id.replace('|', ' ').replace(':', ' ')
-        }, {
-            'name': 'questionType',
-            'value': 'availability'
-        }, {
-            'name': 'functiontest',
-            'value': FUNC_TEST_NUM
-        }]
+    def __hydrate_available_qna(self, id, ids_scopes):
+        # yapf: disable
 
-        ## answer 1
-        # a = self.answer_is_ga(id)
-        a = _b(id) + self.answer_where_ga(id)
-        a_id = len(self.__qna)
-        qs = [
-            "Is %s ga?" % id,
-            "Is %s available?" % id,
-            "What regions is %s available in?" % id,
-            "What regions is %s ga in?" % id,
-            "Where is %s ga in?" % id,
-            "Where is %s available in?" % id,
-            "Where is %s?" % id,
-        ]
+        md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
+        md_type = {'name': 'questionType', 'value': 'availability-quesiton'}
+        md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
+        md_azpub = {'name': 'cloud', 'value': 'azure-public'}
+        md_azgov = {'name': 'cloud', 'value': 'azure-government'}
 
+        md = [md_prod, md_type, md_test]
+        
+        prompt_scope = {
+            'DisplayOrder':1,
+            'DisplayText': "at which scopes / impact levels?"
+        }
+
+        ## Is {id} available?
+        prompt_scope['QnaId'] = ids_scopes[0]
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': _b(id) + self.answer_where_ga(id),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': 
+                [ f"Is {id} {word}?" for word in ['ga','GA','available'] ] +
+                [ f"What regions is {id} {word} in?" for word in ['ga','GA','available'] ] +
+                [ f"Where is {id} {word}?" for word in ['ga in','GA in','available in', '' ] ],
+            'metadata': md.copy(),
+            'context': {
+                'isContextOnly': False,
+                'prompts': [prompt_scope.copy()]
+            }
         })
 
         ## answer 2
-        # a = self.answer_is_ga_in_cloud(id, 'azure-public')
-        a = _b(id) + self.answer_where_ga_in(id, 'azure-public')
-        a_id = len(self.__qna)
-        qs = [
-            "Is %s available in Azure Commercial?" % id,
-            "Is %s GA in Azure Commercial?" % id,
-            "Is %s ga in Azure Commercial?" % id,
-            "Is %s in Azure Commercial?" % id,
-            "What regions is %s available in Azure Commercial?" % id,
-            "What regions is %s ga in Azure Commercial?" % id,
-            "Where is %s available in Azure Commerical?" % id,
-            "Where is %s ga in Azure Commerical?" % id,
-            "Where is %s in Azure Commerical?" % id,
-        ]
-        md = md.copy()
-        md.append({'name': 'cloud', 'value': 'azure-public'})
+        prompt_scope['QnaId'] = ids_scopes[1]    
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': _b(id) + self.answer_where_ga_in(id, 'azure-public'),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': [ 
+                f"{prefix} {id} {word} in {cloud_name}" 
+                    for prefix in ['Is', 'What regions is', 'Where is']
+                    for word in ['available', 'GA', 'ga', ''] 
+                    for cloud_name in ['Azure Commercial', 'Azure Public']  
+                ],
+            'metadata': md + [ md_azpub ],
+            'context': {
+                'isContextOnly': False,
+                'prompts': [prompt_scope.copy()]
+            }
         })
 
-        ## answer 3
-        # a = self.answer_is_ga_in_cloud(id, 'azure-government')
-        a = _b(id) + self.answer_where_ga_in(id, 'azure-government')
-        a_id = len(self.__qna)
-        qs = [
-            "Is %s available in Azure Government?" % id,
-            "Is %s GA in Azure Government?" % id,
-            "Is %s available in MAG?" % id,
-            "Is %s GA in MAG?" % id,
-            "Is %s in Azure Government?" % id,
-            "Is %s in MAG?" % id,
-            "What regions is %s available in Azure Government?" % id,
-            "What regions is %s ga in Azure Government?" % id,
-            "Where is %s available in Azure Government?" % id,
-            "Where is %s ga in Azure Government?" % id,
-            "Where is %s in Azure Government?" % id,
-            "What regions is %s available in MAG?" % id,
-            "What regions is %s ga in MAG?" % id,
-            "Where is %s available in MAG?" % id,
-            "Where is %s ga in MAG?" % id,
-            "Where is %s in MAG?" % id,
-        ]
-        md = md.copy()
-        md.pop()
-        md.append({'name': 'cloud', 'value': 'azure-government'})
+        ## answer 3    
+        prompt_scope['QnaId'] = ids_scopes[2]      
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': _b(id) + self.answer_where_ga_in(id, 'azure-government'),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': [ 
+                f"{prefix} {id} {word} in {cloud_name}" 
+                    for prefix in ['Is', 'What regions is', 'Where is']
+                    for word in ['available', 'GA', 'ga', ''] 
+                    for cloud_name in ['Azure Government', 'MAG']  
+                ],
+            'metadata': md + [ md_azgov ],
+            'context': {
+                'isContextOnly': False,
+                'prompts': [prompt_scope.copy()]
+            }
         })
+
+        # yapf: enable
 
     def __hydrate_preview_qna(self, id):
 
@@ -274,8 +253,9 @@ class QnABruteForce:
         md = [md_prod, md_type, md_test]
 
         ## answer 1
+        id_all_scopes = len(self.__qna)
         self.__qna.append({
-            'id':           len(self.__qna),
+            'id':           id_all_scopes,
             'answer':       _b(id) + self.answer_which_scopes(id),
             'source':       QnA_SOURCE,
             'questions':    [
@@ -287,8 +267,9 @@ class QnABruteForce:
         })
 
         ## answer 2
+        id_azpub = len(self.__qna)
         self.__qna.append({
-            'id':        len(self.__qna),
+            'id': id_azpub,
             'answer':        f"{_b(id)}{self.answer_which_scopes_in_cloud(id, 'azure-public')}",
             'source':            QnA_SOURCE,
             'questions': [
@@ -299,8 +280,9 @@ class QnABruteForce:
         })
 
         ## answer 3
+        id_azgov = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
+            'id': id_azgov,
             'answer': f"{_b(id)}{self.answer_which_scopes_in_cloud(id, 'azure-government')}",
             'source': QnA_SOURCE,
             'questions': [
@@ -351,6 +333,8 @@ class QnABruteForce:
             ['FedRAMP High'],
             ['azure-public', 'azure-government'],
             md)
+
+        return [id_all_scopes, id_azpub, id_azgov]
 
         # yapf: enable
 
@@ -575,7 +559,7 @@ class QnABruteForce:
             dod = "DoD CC SRG IL 5 (Azure DoD)" in scopes
 
             if (gov and dod):
-                return " in *both* Gov and DoD regions"
+                return " in **both Gov and DoD regions**"
             elif gov:
                 return ", but in **Gov regions only**"
             elif dod:
