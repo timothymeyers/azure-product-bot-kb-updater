@@ -181,7 +181,7 @@ class QnABruteForce:
         md_azgov = {'name': 'cloud', 'value': 'azure-government'}
 
         md = [md_prod, md_type, md_test]
-        
+
         ## Where is {id} in preview?
         self.__qna.append({
             'id': len(self.__qna),
@@ -191,18 +191,18 @@ class QnABruteForce:
             'metadata': md.copy()
         })
 
-        ## ... in Azure Commercial?   
+        ## ... in Azure Commercial?
         self.__qna.append({
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_preview_in(id, 'azure-public'),
             'source': QnA_SOURCE,
-            'questions': 
+            'questions':
                 [ f"{word}is {id} in preview in Azure Commercial?" for word in ['','Where '] ] +
                 [ f"{word}is {id} in preview in Azure Public?" for word in ['','Where '] ],
             'metadata': md + [md_azpub]
         })
 
-        ## ... in Azure Government?  
+        ## ... in Azure Government?
         self.__qna.append({
             'id': len(self.__qna),
             'answer': _b(id) + self.answer_where_preview_in(id, 'azure-government'),
@@ -214,10 +214,10 @@ class QnABruteForce:
             'metadata': md + [md_azgov]
         })
 
-         # yapf: enable
+        # yapf: enable
 
     def __hydrate_expected_qna(self, id):
-        
+
         # yapf: disable
 
         md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
@@ -237,12 +237,12 @@ class QnABruteForce:
             'metadata': md.copy()
         })
 
-        ## ... in Azure Commercial?     
+        ## ... in Azure Commercial?
         self.__qna.append({
             'id': len(self.__qna),
             'answer':  _b(id) + self.answer_where_expected_ga_in(id, 'azure-public'),
             'source': QnA_SOURCE,
-            'questions': 
+            'questions':
                 [f"When is {id} expected to be {word} in Azure Commercial" for word in ['available', 'ga', 'GA'] ] +
                 [f"When is {id} expected to be {word} in Azure Public" for word in ['available', 'ga', 'GA'] ],
             'metadata': md + [md_azpub]
@@ -253,8 +253,8 @@ class QnABruteForce:
             'id': len(self.__qna),
             'answer':  _b(id) + self.answer_where_expected_ga_in(id, 'azure-government'),
             'source': QnA_SOURCE,
-            'questions': 
-                [f"When is {id} expected to be {word} in Azure Government" for word in ['available', 'ga', 'GA'] ] + 
+            'questions':
+                [f"When is {id} expected to be {word} in Azure Government" for word in ['available', 'ga', 'GA'] ] +
                 [f"When is {id} expected to be {word} in MAG" for word in ['available', 'ga', 'GA'] ],
             'metadata': md + [md_azgov]
         })
@@ -279,7 +279,7 @@ class QnABruteForce:
             'answer':       _b(id) + self.answer_which_scopes(id),
             'source':       QnA_SOURCE,
             'questions':    [
-                f"Which audit scopes is {id} at?", 
+                f"Which audit scopes is {id} at?",
                 f"Which scopes is {id} at?",
                 f"Which impact levels is {id} at?"
             ],
@@ -315,50 +315,49 @@ class QnABruteForce:
 
         ## is at {each IL level} ? ------------------
         self.__helper_hydrate_is_scope(id,
-            'IL2', 
+            'IL2',
             ['IL2', 'IL 2', 'DoD CC SRG IL 2'],
             ['azure-public','azure-government'],
             md)
 
         self.__helper_hydrate_is_scope(id,
-            'IL4', 
+            'IL4',
             ['IL4', 'IL 4', 'DoD CC SRG IL 4'],
             ['azure-government'],
             md)
 
         self.__helper_hydrate_is_scope(id,
-            'IL5', 
+            'IL5',
             ['IL5', 'IL 5', 'DoD CC SRG IL 5 (Azure Gov)', 'DoD CC SRG IL 5 (Azure DoD)',
             'IL5 in Gov', 'IL5 in DOD', 'DoD CC SRG IL 5'],
             ['azure-government'],
             md)
 
         self.__helper_hydrate_is_scope(id,
-            'IL6', 
+            'IL6',
             ['IL6', 'IL 6', 'DoD CC SRG IL 6'],
             ['azure-government'],
             md)
 
         self.__helper_hydrate_is_scope(id,
-            'FedRAMP Moderate', 
+            'FedRAMP Moderate',
             ['FedRAMP Moderate'],
             ['azure-public'],
             md)
 
 
         self.__helper_hydrate_is_scope(id,
-            'FedRAMP High', 
+            'FedRAMP High',
             ['FedRAMP High'],
             ['azure-public', 'azure-government'],
             md)
 
         # yapf: enable
 
-
     def __helper_hydrate_is_scope(self, id, scope, names, cloud_list, metadata_starter):
-        
+
         # yapf: disable
-        
+
         md_scope = {'name':'scope', 'value': scope }
 
         md_azpub = {'name': 'cloud', 'value': 'azure-public'}
@@ -366,7 +365,7 @@ class QnABruteForce:
         md_cloud = {
             'azure-public' : md_azpub,
             'azure-government': md_azgov
-        }        
+        }
 
         md_question_starter = []
 
@@ -379,12 +378,12 @@ class QnABruteForce:
                 'metadata': metadata_starter + [md_scope]
             })
         else:
-           md_question_starter = [ f"Is {id} at {il}?" for il in names ]
+            md_question_starter = [ f"Is {id} at {il}?" for il in names ]
 
         for cloud in cloud_list:
             md_questions = [ f"Is {id} at {il} in {self.__cloud_name(cloud)}?" for il in names ]
 
-            if cloud == 'azure-government': 
+            if cloud == 'azure-government':
                 md_questions = md_questions + [ f"Is {id} at {il} in MAG?" for il in names ]
 
             self.__qna.append({
@@ -394,9 +393,8 @@ class QnABruteForce:
                 'questions': md_question_starter + md_questions,
                 'metadata': metadata_starter + [md_scope, md_cloud[cloud]]
             })
-        
-        # yapf: enable
 
+        # yapf: enable
 
     def __answer_what_services(self):
         return "I know about the following services:" + list_to_markdown(self.__az.services_list())
@@ -565,9 +563,9 @@ class QnABruteForce:
             il5_suffix = self.__helper_scope_il5_region_checker(scope_short, scopes)
             return f"Yes, {_b(id)} is at {scope_short} in {self.__cloud_name(cloud)}{il5_suffix}."
         else:
-            return ( 
-                f"No, {_b(id)} is not at {scope_short} in {self.__cloud_name(cloud)}" 
-                + f"\n\nIt{scopes}"
+            return (
+                f"No, {_b(id)} is not at {scope_short} in {self.__cloud_name(cloud)}" +
+                f"\n\nIt{scopes}"
             )
 
     def __helper_scope_il5_region_checker(self, scope, scopes):
@@ -582,9 +580,8 @@ class QnABruteForce:
                 return ", but in **Gov regions only**"
             elif dod:
                 return ", but in **DoD regions only**"
-                
-        return ""
 
+        return ""
 
     def answer_which_scopes(self, id):
         az_pub = self.answer_which_scopes_in_cloud(id, 'azure-public')
