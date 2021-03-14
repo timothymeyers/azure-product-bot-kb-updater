@@ -302,11 +302,7 @@ class QnABruteForce:
         })
 
 
-        ## Each IL in each cloud ? ------------------
-        ## answer 4
-        
-        #self.__helper_hydrate_is_scope(scope, names, cloud_list, metadata_starter)
-
+        ## is at {each IL level} ? ------------------
         self.__helper_hydrate_is_scope(id,
             'IL2', 
             ['IL2', 'IL 2', 'DoD CC SRG IL 2'],
@@ -548,12 +544,29 @@ class QnABruteForce:
         else: scope_short = scope
 
         if scope_short in scopes:
-            return f"Yes, {_b(id)} is at {scope_short} in {self.__cloud_name(cloud)}"
+            il5_suffix = self.__helper_scope_il5_region_checker(scope_short, scopes)
+            return f"Yes, {_b(id)} is at {scope_short} in {self.__cloud_name(cloud)}{il5_suffix}."
         else:
             return ( 
                 f"No, {_b(id)} is not at {scope_short} in {self.__cloud_name(cloud)}" 
-                + f"\n\nIt{self.answer_which_scopes_in_cloud(id, cloud)}"
+                + f"\n\nIt{scopes}"
             )
+
+    def __helper_scope_il5_region_checker(self, scope, scopes):
+
+        if scope == "IL 5":
+            gov = "DoD CC SRG IL 5 (Azure Gov)" in scopes
+            dod = "DoD CC SRG IL 5 (Azure DoD)" in scopes
+
+            if (gov and dod):
+                return " in *both* Gov and DoD regions"
+            elif gov:
+                return ", but in **Gov regions only**"
+            elif dod:
+                return ", but in **DoD regions only**"
+                
+        return ""
+
 
     def answer_which_scopes(self, id):
         az_pub = self.answer_which_scopes_in_cloud(id, 'azure-public')
