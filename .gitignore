@@ -131,6 +131,7 @@ local.settings.json
 
 # Other ignores
 .vscode
+.tmp
 poetry.lock
 requirements2.txt
 junit
