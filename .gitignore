@@ -136,3 +136,6 @@ poetry.lock
 requirements2.txt
 junit
 workflows-tmp
+tests/x*
+azure_product_bot_kb_updater/sample.dat
+conftest.py
