@@ -60,13 +60,12 @@ class QnABruteForce:
     def __hydrate_summary_info(self):
         # yapf: disable
 
-        md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
         md_type = {'name': 'questionType', 'value': 'expected-question'}
         md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
         md_azpub = {'name': 'cloud', 'value': 'azure-public'}
         md_azgov = {'name': 'cloud', 'value': 'azure-government'}
 
-        md = [md_prod, md_type, md_test]
+        md = [md_type, md_test]
 
         self.__qna.append({
             'id': len(self.__qna),
