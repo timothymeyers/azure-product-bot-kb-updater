@@ -8,7 +8,7 @@ authors = ["Tim Meyers"]
 python = "^3.8"
 azure-cognitiveservices-knowledge-qnamaker = "^0.3.0"
 azure-functions = "^1.6.0"
-azure-data-scraper = {url = "https://files.pythonhosted.org/packages/e9/dc/86eb2b6be87437753c69c6a5f49120e9cfbc69dd587843514a32fb34d2aa/azure_data_scraper-0.1.6a0.tar.gz"}
+azure-data-scraper = {url = "https://files.pythonhosted.org/packages/01/1b/963e2df9b1e7b5db59d459e81dfe2ac863bc3f628754f874e2ba3b9b3d33/azure_data_scraper-0.1.6-py3-none-any.whl"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
