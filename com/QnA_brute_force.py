@@ -47,8 +47,6 @@ class QnABruteForce:
             print(q, "\t", a)
 
     def __hydrate_qna(self):
-        self.__hydrate_summary_info()
-
         for id in self.__az.products_list():
             ids_scopes = self.__hydrate_scopes_qna(id)
             self.__hydrate_available_qna(id, ids_scopes)
@@ -56,27 +54,29 @@ class QnABruteForce:
             self.__hydrate_expected_qna(id)
             self.__hydrate_regions_qna(id)
 
-    def __hydrate_summary_info(self):
-        md = [{
-            'name': 'questionType',
-            'value': 'summary'
-        }, {
-            'name': 'functiontest',
-            'value': FUNC_TEST_NUM
-        }]
+        self.__hydrate_summary_info()
 
-        ## answer 1
-        a = self.__answer_what_services()
-        a_id = len(self.__qna)
-        qs = ["What services do you know about?"]
+
+    def __hydrate_summary_info(self):
+        # yapf: disable
+
+        md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
+        md_type = {'name': 'questionType', 'value': 'expected-question'}
+        md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
+        md_azpub = {'name': 'cloud', 'value': 'azure-public'}
+        md_azgov = {'name': 'cloud', 'value': 'azure-government'}
+
+        md = [md_prod, md_type, md_test]
 
         self.__qna.append({
-            'id': a_id,
-            'answer': a,
+            'id': len(self.__qna),
+            'answer': self.__answer_what_services(),
             'source': QnA_SOURCE,
-            'questions': qs,
-            'metadata': md
+            'questions': ["What services do you know about?"],
+            'metadata': md.copy()
         })
+
+        # yapf: enable
 
     def __hydrate_available_qna(self, id, ids_scopes):
         # yapf: disable
