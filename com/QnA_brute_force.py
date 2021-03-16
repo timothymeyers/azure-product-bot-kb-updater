@@ -8,20 +8,18 @@ QnA_SOURCE = "QnA Brute Force"
 def list_to_markdown(in_list=None, one_line=False) -> str:
     if in_list is None or in_list == []: return ""
 
-    if len(in_list) == 1: return in_list[0] + "."
+    if len(in_list) == 1: return f" {in_list[0]}."
 
     # for long lists, force it to output a single line
-    if len(in_list) > 3: one_line = True
+    #if len(in_list) > 3: one_line = True
 
-    if one_line:
-        return "\n * %s \n\n" % str(in_list).replace('[', '').replace(']', '').replace('\'', '')
+    #if one_line:
+    #    return "\n * %s \n\n" % str(in_list).replace('[', '').replace(']', '').replace('\'', '')
 
-    a = ""
-    for item in in_list:
-        a = a + "\n * %s" % item
+    a = ":"
+    for item in in_list: a = a + "\n * %s" % item
 
-    a = a + "\n\n"
-    return a
+    return a + "\n\n"
 
 
 # yapf: disable
@@ -432,7 +430,7 @@ class QnABruteForce:
         # yapf: enable
 
     def __answer_what_services(self):
-        return "I know about the following services:" + list_to_markdown(self.__az.services_list())
+        return "I know about the following services" + list_to_markdown(self.__az.services_list())
 
     def __answer_what_services_in_cloud(self, cloud):
         pass
@@ -484,7 +482,7 @@ class QnABruteForce:
 
         # return regions
         if len(regions) > 0:
-            return " is GA in %s in: %s" % (cloud_name, list_to_markdown(regions))
+            return " is GA in %s in %s" % (cloud_name, list_to_markdown(regions))
 
         # it is not GA, check preview regions and expected release date
 
@@ -528,7 +526,7 @@ class QnABruteForce:
             return f" is ***in preview*** in {cloud_name}. It is {_i('non-regional')} and not tied to a specific region."
 
         if len(regions) > 0:
-            return " is ***in preview*** in %s in: %s" % (cloud_name, list_to_markdown(regions))
+            return " is ***in preview*** in %s in %s" % (cloud_name, list_to_markdown(regions))
 
         return " is not in preview in %s" % cloud_name
 
@@ -553,7 +551,7 @@ class QnABruteForce:
 
         if available:
             regions_ga = list_to_markdown(self.__az.getProductAvailableRegions(id, cloud))
-            ans = " is already GA in %s in %s" % (cloud_name, regions_ga)
+            ans = " is already GA in %s in%s" % (cloud_name, regions_ga)
 
             if (len(expected_ga) == 0):
                 return ans
@@ -562,7 +560,7 @@ class QnABruteForce:
 
         if (len(expected_ga) > 0):
             pretty_expected = self.__pretty_expected_list(expected_ga)
-            return ans + " is currently targeted for GA in %s: %s" % (
+            return ans + " is currently targeted for GA in %s%s" % (
                 cloud_name, list_to_markdown(pretty_expected)
             )
 
@@ -632,7 +630,7 @@ class QnABruteForce:
         scopes = self.__az.getProductScopes(id, cloud)
 
         if len(scopes) > 0:
-            return f" is in {cloud_name} at the following scopes {list_to_markdown(scopes)}"
+            return f" is in {cloud_name} at the following scopes{list_to_markdown(scopes)}"
 
         return f" does not have an audit scope or impact level info available yet for {cloud_name}."
 
