@@ -8,7 +8,7 @@ QnA_SOURCE = "QnA Brute Force"
 def list_to_markdown(in_list=None, one_line=False) -> str:
     if in_list is None or in_list == []: return ""
 
-    if len(in_list) == 1: return f" {in_list[0]}."
+    if len(in_list) == 1: return f" {_i(in_list[0])}.\n\n"
 
     # for long lists, force it to output a single line
     #if len(in_list) > 3: one_line = True
@@ -429,6 +429,34 @@ class QnABruteForce:
 
         # yapf: enable
 
+    def answer_tell_me_everything_about (self, id):
+        product = self.__az.getProductDetails(id)
+
+        prod_name = id
+        prod_type = product['type']
+        prod_cats = product['categories']
+        
+        cloud = 'azure-public'
+        prod_available = product[cloud]['available']
+        prod_ga = product[cloud]['ga']
+
+
+        a = ( "\n\n" +
+            _i(_b(id)) + "\n\n" +
+
+            _b("Azure Commercial") + "\n\n" + 
+            
+            "It" + self.answer_where_ga_in (id, cloud) + 
+            "It" + self.answer_where_preview_in(id, cloud) + 
+            "It" + self.answer_where_expected_ga_in(id, cloud, False) + 
+            "It" + self.answer_which_scopes_in_cloud(id, cloud)  +    
+            
+            "\n\n"
+        )
+
+
+        return a
+
     def __answer_what_services(self):
         return "I know about the following services" + list_to_markdown(self.__az.services_list())
 
@@ -482,7 +510,7 @@ class QnABruteForce:
 
         # return regions
         if len(regions) > 0:
-            return " is GA in %s in %s" % (cloud_name, list_to_markdown(regions))
+            return " is GA in %s in%s" % (cloud_name, list_to_markdown(regions))
 
         # it is not GA, check preview regions and expected release date
 
@@ -526,7 +554,7 @@ class QnABruteForce:
             return f" is ***in preview*** in {cloud_name}. It is {_i('non-regional')} and not tied to a specific region."
 
         if len(regions) > 0:
-            return " is ***in preview*** in %s in %s" % (cloud_name, list_to_markdown(regions))
+            return " is ***in preview*** in %s in%s" % (cloud_name, list_to_markdown(regions))
 
         return " is not in preview in %s" % cloud_name
 
@@ -543,13 +571,13 @@ class QnABruteForce:
 
         return (az_pub + "\n\n" + "It" + az_gov)
 
-    def answer_where_expected_ga_in(self, id, cloud):
+    def answer_where_expected_ga_in(self, id, cloud, print_available=True):
         ans = ""
         cloud_name = self.__cloud_name(cloud)
         available = self.__az.isProductAvailable(id, cloud)
         expected_ga = self.__az.getProductRegionsGATargets(id, cloud)
 
-        if available:
+        if available and print_available:
             regions_ga = list_to_markdown(self.__az.getProductAvailableRegions(id, cloud))
             ans = " is already GA in %s in%s" % (cloud_name, regions_ga)
 

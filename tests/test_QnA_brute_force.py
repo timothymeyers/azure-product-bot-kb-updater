@@ -21,7 +21,7 @@ def test_version():
 def test_list_to_markdown():
     assert list_to_markdown() == ""
     assert list_to_markdown([]) == ""
-    assert list_to_markdown(['apples']) == "apples."
+    assert list_to_markdown(['apples']) == " *apples*.\n\n"
     assert list_to_markdown(['apples', 'bananas']) == ":\n * apples\n * bananas\n\n"
     #assert list_to_markdown(['apples', 'bananas', 'oranges',
     #                         'grapes']) == ":\n * apples, bananas, oranges, grapes \n\n"
