@@ -43,11 +43,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     result = get_qna(path, KB_SUBSCRIPTION_KEY)
     result_json = json.loads(result)
     num_answers = len(result_json['qnaDocuments'])
+    #logging.info (pretty_print(result_json['qnaDocuments'][0]))
+    
     logging.info("download - " + str(num_answers))
+
+    #logging.info ( result_json['qnaDocuments'] )
+
 
     my_list = [i['id'] for i in result_json['qnaDocuments']]
     
-    logging.debug (my_list)    
+    #logging.debug (my_list)    
     
 
     ## Delete all QnA Brute Force data
