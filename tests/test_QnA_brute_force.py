@@ -30,7 +30,7 @@ def test_is_initialized(qna):
     assert True
 
 @pytest.mark.parametrize("prod", [('Full Service')])
-def test_answer_where_ga_in(qna, prod):
+def test_where_ga_in(qna, prod):
     ans = qna.answer_where_ga_in(prod, 'azure-public')
     assert "is GA" in ans
     assert "Azure Commercial" in ans
@@ -45,13 +45,13 @@ def test_answer_where_ga_in(qna, prod):
 
 
 @pytest.mark.parametrize("prod, answer", [('Full Service', 'is GA'), ('Not GA Service', 'is not currently GA')])
-def test_answer_where_ga_BOTH(qna, prod, answer):
+def test_where_ga_BOTH(qna, prod, answer):
     ans = qna.answer_where_ga(prod)
     assert answer in ans
 
 
 @pytest.mark.parametrize("prod", [('Full Service')])
-def test_answer_where_preview_in(qna, prod):
+def test_where_preview_in(qna, prod):
     ans = qna.answer_where_preview_in(prod, 'azure-public')
     assert "is ***in preview" in ans
     assert "Azure Commercial" in ans
@@ -63,13 +63,13 @@ def test_answer_where_preview_in(qna, prod):
     assert "mag-prev-reg-1" in ans
 
 @pytest.mark.parametrize("prod", [('Full Service')])
-def test_answer_where_preview_BOTH (qna, prod):
+def test_where_preview_BOTH (qna, prod):
     ans = qna.answer_where_preview (prod)
     assert "is ***in preview" in ans
     assert "*both*" in ans
 
 @pytest.mark.parametrize("prod", [('Full Service')])
-def test_answer_where_expected_ga_in_IS_GA_TOO(qna, prod):
+def test_where_expected_ga_in_IS_GA_TOO(qna, prod):
     ans = qna.answer_where_expected_ga_in(prod, 'azure-public')
     assert "is already GA" in ans
     assert "gcc-ga-reg-1" in ans
@@ -86,7 +86,7 @@ def test_answer_where_expected_ga_in_IS_GA_TOO(qna, prod):
 
 
 @pytest.mark.parametrize("prod", [('Not GA Service')])
-def test_answer_where_expected_ga_in_IS_NOT_GA(qna, prod):
+def test_where_expected_ga_in_IS_NOT_GA(qna, prod):
     ans = qna.answer_where_expected_ga_in(prod, 'azure-public')
     assert "is already GA" not in ans
     assert "is currently targeted for GA" in ans
@@ -110,3 +110,14 @@ def test_answer_where_ga_in_IS_NOT_GA_BUT_PREVIEW(qna, prod, cloud, region):
     assert "However, it is ***In Preview***" in result
     assert region in result
 '''
+
+@pytest.mark.parametrize("prod, expected_result", [
+    ("IL5 Service - BOTH", "both Gov and DoD regions"),
+    ("IL5 Service - Gov", "Gov regions only"),
+    ("IL5 Service - DoD", "DoD regions only"),
+    ("Full Service", "is not at")
+
+])
+def test_is_at_scope_in_cloud_IL5 (qna, prod, expected_result):
+    result = qna.answer_is_at_scope_in_cloud (prod, 'IL 5', 'azure-government')
+    assert expected_result in result

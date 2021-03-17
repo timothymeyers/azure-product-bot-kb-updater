@@ -163,6 +163,70 @@
       ]
     }
   },
+
+  "IL5 Service - BOTH": {
+    "prod-id": "IL5 Service - BOTH",
+    "type": "service",
+    "capabilities": [],
+    "categories": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": ["DoD CC SRG IL 5 (Azure Gov)", "DoD CC SRG IL 5 (Azure DoD)"],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+
+  "IL5 Service - Gov": {
+    "prod-id": "IL5 Service - Gov",
+    "type": "service",
+    "capabilities": [],
+    "categories": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": ["DoD CC SRG IL 5 (Azure Gov)"],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+
+  "IL5 Service - DoD": {
+    "prod-id": "IL5 Service - DoD",
+    "type": "service",
+    "capabilities": [],
+    "categories": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": ["DoD CC SRG IL 5 (Azure DoD)"],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+
   "Totally Empty Service 0": {
     "categories": [],
     "type": "service",
