@@ -10,6 +10,7 @@
     "azure-public": {
       "available": true,
       "scopes": [
+        "both-scope-1",
         "gcc-scope-1",
         "gcc-scope-2",
         "gcc-scope-3"
@@ -43,6 +44,7 @@
     "azure-government": {
       "available": true,
       "scopes": [
+        "both-scope-1",
         "mag-scope-1",
         "mag-scope-2"
       ],
