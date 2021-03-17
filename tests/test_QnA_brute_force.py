@@ -111,13 +111,16 @@ def test_answer_where_ga_in_IS_NOT_GA_BUT_PREVIEW(qna, prod, cloud, region):
     assert region in result
 '''
 
-@pytest.mark.parametrize("prod, expected_result", [
-    ("IL5 Service - BOTH", "both Gov and DoD regions"),
-    ("IL5 Service - Gov", "Gov regions only"),
-    ("IL5 Service - DoD", "DoD regions only"),
-    ("Full Service", "is not at")
+@pytest.mark.parametrize("prod, scope, expected_result", [
+    ("IL5 Service - BOTH", 'IL 5', "both Gov and DoD regions"),
+    ("IL5 Service - Gov", 'IL 5', "Gov regions only"),
+    ("IL5 Service - DoD", 'IL 5', "DoD regions only"),
+    ("Full Service", 'IL 5', "does not look like"),
+    ("Full Service", 'both-scope-1', "is at both-scope-1 in both"),
+    ("Full Service", 'gcc-scope-1', "is at gcc-scope-1 in"),
+    ("Full Service", 'mag-scope-1', "is at mag-scope-1 in")
 
 ])
-def test_is_at_scope_in_cloud_IL5 (qna, prod, expected_result):
-    result = qna.answer_is_at_scope_in_cloud (prod, 'IL 5', 'azure-government')
+def test_is_at_scope (qna, prod, scope, expected_result):
+    result = qna.answer_is_at_scope (prod, scope)
     assert expected_result in result
