@@ -253,20 +253,6 @@ class QnABruteForce:
         # yapf: enable
         return [id_all, id_azpub, id_azgov]
 
-    def __helper_get_scope_prompt(self, id, id_scope, cloud=""):
-        scope_list = self.__az.getProductScopes(id, cloud)
-
-        if (
-            len(scope_list) > -1
-        ):               # use this pattern for other follow-up questions that you want to skip; change this to 0
-            return [{
-                'DisplayOrder': 1,
-                'DisplayText': "at which scopes / impact levels?",
-                'QnaId': id_scope
-            }]
-
-        return []
-
     def __helper_get_prompt(self, qna_id, qna_prompt, check_list, display_order=1):
         if type(check_list) == list and len(check_list) > 0:
             return [{'DisplayOrder': display_order, 'DisplayText': qna_prompt, 'QnaId': qna_id}]
