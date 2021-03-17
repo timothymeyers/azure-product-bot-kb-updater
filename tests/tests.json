@@ -162,5 +162,375 @@
         }
       ]
     }
+  },
+  "Totally Empty Service 0": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 1": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 2": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 3": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 4": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 5": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 6": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 7": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 8": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Service 9": {
+    "categories": [],
+    "type": "service",
+    "capabilities": [],
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 0": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 1": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 2": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 3": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 4": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 5": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 6": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 7": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 8": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
+  },
+  "Totally Empty Capability 9": {
+    "categories": [],
+    "type": "capability",
+    "azure-public": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    },
+    "azure-government": {
+      "available": false,
+      "scopes": [],
+      "ga": [],
+      "preview": [],
+      "planned-active": []
+    }
   }
 }
