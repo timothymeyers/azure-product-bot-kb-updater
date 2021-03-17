@@ -1,5 +1,4 @@
 from azure_data_scraper.az_product_info import AzProductInfo
-from azure.cognitiveservices.knowledge.qnamaker.models import (QnADTO, MetadataDTO)
 
 FUNC_TEST_NUM = "0006"
 QnA_SOURCE = "QnA Brute Force"
@@ -17,9 +16,14 @@ def list_to_markdown(in_list=None, one_line=False) -> str:
     #    return "\n * %s \n\n" % str(in_list).replace('[', '').replace(']', '').replace('\'', '')
 
     a = ":"
-    for item in in_list: a = a + "\n * %s" % item
+    for item in in_list:
+        a = a + "\n * %s" % item
 
     return a + "\n\n"
+
+
+def chunk_list(list_, chunk_size) -> list:
+    return [list_[x:x + chunk_size] for x in range(0, len(list_), chunk_size)]
 
 
 # yapf: disable
@@ -33,6 +37,7 @@ class QnABruteForce:
     def __init__(self, az=AzProductInfo()):
         self.__az = az
         self.__qna = []
+        self.__qna_ids = {}
 
         self.__hydrate_qna()
 
@@ -45,15 +50,16 @@ class QnABruteForce:
             print(q, "\t", a)
 
     def __hydrate_qna(self):
-        for id in self.__az.products_list():
-            ids_scopes = self.__hydrate_scopes_qna(id)
-            self.__hydrate_available_qna(id, ids_scopes)
-            self.__hydrate_preview_qna(id)
-            self.__hydrate_expected_qna(id)
+        for id in (self.__az.capabilities_list() + self.__az.services_list()):
+            self.__qna_ids[id] = {}
+            self.__qna_ids[id]['scopes'] = self.__hydrate_scopes_qna(id)
+            self.__qna_ids[id]['preview'] = self.__hydrate_preview_qna(id)
+            self.__qna_ids[id]['expected'] = self.__hydrate_expected_qna(id)
+            self.__qna_ids[id]['available'] = self.__hydrate_available_qna(id)
             self.__hydrate_regions_qna(id)
+            self.__qna_ids[id]['tell-me-about'] = self.__hydrate_tell_me_about(id)
 
         self.__hydrate_summary_info()
-
 
     def __hydrate_summary_info(self):
         # yapf: disable
@@ -65,17 +71,105 @@ class QnABruteForce:
 
         md = [md_type, md_test]
 
+        services = self.__az.services_list()
+        services.sort()
+        services = chunk_list (services, 5)
+
+        prompts = []
+        for i, id in enumerate(services[0]):
+            prompts = prompts + self.__helper_get_prompt(self.__qna_ids[id]['tell-me-about'], id, [1], i)
+
+        id_first = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
-            'answer': self.__answer_what_services(),
+            'id': id_first,
+            'answer': "I know about these services. [click to learn more]",
             'source': QnA_SOURCE,
-            'questions': ["What services do you know about?"],
-            'metadata': md.copy()
+            'questions': [
+                "What services do you know about?",
+                "Which services?",
+                "What services?"
+            ],
+            'metadata': md.copy(),
+            'context': {
+                'isContextOnly': False,
+                'prompts': prompts + self.__helper_get_prompt(id_first+1, "More ...", [1], 21)
+                }
         })
+
+        for j, page in enumerate(services[1:len(services)]):
+            id_mid = len(self.__qna)
+
+            more = []
+            if j < len(services):
+                more = self.__helper_get_prompt(id_mid+1, "More ...", [1], 21)
+
+            prompts = []
+            for i, id in enumerate(page):
+                prompts = prompts + self.__helper_get_prompt(self.__qna_ids[id]['tell-me-about'], id, [1], i)
+
+            self.__qna.append({
+                'id': id_mid,
+                'answer': "I know about these services. [click to learn more]",
+                'source': QnA_SOURCE,
+                'questions': [ "[[[[more services]]]]" ],
+                'metadata': md.copy(),
+                'context': {
+                    'isContextOnly': True,
+                    'prompts': prompts + more
+                    }
+            })
 
         # yapf: enable
 
-    def __hydrate_available_qna(self, id, ids_scopes):
+    def __hydrate_tell_me_about(self, id):
+        # yapf: disable
+
+        md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
+        md_type = {'name': 'questionType', 'value': 'tell-me-quesiton'}
+        md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
+
+        md = [md_prod, md_type, md_test]
+
+        id_all = len(self.__qna)
+        self.__qna.append({
+            'id': id_all,
+            'answer': f"What do you want to know about {_b(id)}?",
+            'source': QnA_SOURCE,
+            'questions': [
+                f"Tell me about {id}.",
+                f"{id}"],
+            'metadata': md.copy(),
+            'context': {
+                'isContextOnly': False,
+                'prompts': self.__helper_get_prompt (
+                                self.__qna_ids[id]['available'][1],
+                                "Azure Commericial - Availability",
+                                [1], 1
+                                ) +
+
+                            self.__helper_get_prompt (
+                                self.__qna_ids[id]['scopes'][1],
+                                "Azure Commericial - Audit Scopes",
+                                self.__az.getProductScopes(id, 'azure-public'), 2
+                                ) +
+
+                            self.__helper_get_prompt (
+                                self.__qna_ids[id]['available'][2],
+                                "Azure Government - Availability",
+                                [1], 3
+                                ) +
+
+                            self.__helper_get_prompt (
+                                self.__qna_ids[id]['scopes'][2],
+                                "Azure Government - Audit Scopes",
+                                self.__az.getProductScopes(id, 'azure-government'), 4
+                                )
+            }
+        })
+
+        return id_all
+
+    def __hydrate_available_qna(self, id):
         # yapf: disable
 
         md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
@@ -86,10 +180,61 @@ class QnABruteForce:
 
         md = [md_prod, md_type, md_test]
 
-        ## Is {id} available?
+        ## answer 2
+        id_azpub = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
-            'answer': _b(id) + self.answer_where_ga(id),
+            'id': id_azpub,
+            'answer': _b(id) + self.answer_where_ga_in(id, 'azure-public'),
+            'source': QnA_SOURCE,
+            'questions': [
+                f"{prefix} {id} {word} in {cloud_name}"
+                    for prefix in ['Is', 'What regions is', 'Where is']
+                    for word in ['available', 'GA', '']
+                    for cloud_name in ['Azure Commercial', 'Azure Public', 'Commercial', 'Public', 'Pub', 'GCC']
+                ],
+            'metadata': md + [ md_azpub ],
+            'context': {
+                'isContextOnly': False,
+                'prompts': self.__helper_get_prompt (
+                                self.__qna_ids[id]['scopes'][1],
+                                "at which scopes / impact levels?",
+                                self.__az.getProductScopes(id, 'azure-public'),
+                                1 )
+                    # self.__helper_get_scope_prompt (id, ids_scopes[1], 'azure-public')
+
+            }
+        })
+
+        ## answer 3
+        id_azgov = len(self.__qna)
+        self.__qna.append({
+            'id': id_azgov,
+            'answer': _b(id) + self.answer_where_ga_in(id, 'azure-government'),
+            'source': QnA_SOURCE,
+            'questions': [
+                f"{prefix} {id} {word} in {cloud_name}"
+                    for prefix in ['Is', 'What regions is', 'Where is']
+                    for word in ['available', 'GA', '']
+                    for cloud_name in ['Azure Government', 'Gov', 'MAG']
+                ],
+            'metadata': md + [ md_azgov ],
+            'context': {
+                'isContextOnly': False,
+                'prompts': self.__helper_get_prompt (
+                                self.__qna_ids[id]['scopes'][2],
+                                "at which scopes / impact levels?",
+                                self.__az.getProductScopes(id, 'azure-government'),
+                                1 )
+                    # self.__helper_get_scope_prompt (id, ids_scopes[2], 'azure-government')
+
+            }
+        })
+
+        ## Is {id} available?
+        id_all = len(self.__qna)
+        self.__qna.append({
+            'id': id_all,
+            'answer': f"{id}. In {_b('Azure Commercial')} or {_b('Azure Government')}?",
             'source': QnA_SOURCE,
             'questions':
                 [ f"Is {id} {word}?" for word in ['ga','GA','available'] ] +
@@ -98,49 +243,15 @@ class QnABruteForce:
             'metadata': md.copy(),
             'context': {
                 'isContextOnly': False,
-                'prompts':  self.__helper_get_scope_prompt (id, ids_scopes[0])
-            }
-        })
-
-        ## answer 2
-        self.__qna.append({
-            'id': len(self.__qna),
-            'answer': _b(id) + self.answer_where_ga_in(id, 'azure-public'),
-            'source': QnA_SOURCE,
-            'questions': [
-                f"{prefix} {id} {word} in {cloud_name}"
-                    for prefix in ['Is', 'What regions is', 'Where is']
-                    for word in ['available', 'GA', 'ga', '']
-                    for cloud_name in ['Azure Commercial', 'Azure Public', 'Commercial', 'Public', 'Pub', 'GCC']
-                ],
-            'metadata': md + [ md_azpub ],
-            'context': {
-                'isContextOnly': False,
-                'prompts': self.__helper_get_scope_prompt (id, ids_scopes[1], 'azure-public')
-
-            }
-        })
-
-        ## answer 3
-        self.__qna.append({
-            'id': len(self.__qna),
-            'answer': _b(id) + self.answer_where_ga_in(id, 'azure-government'),
-            'source': QnA_SOURCE,
-            'questions': [
-                f"{prefix} {id} {word} in {cloud_name}"
-                    for prefix in ['Is', 'What regions is', 'Where is']
-                    for word in ['available', 'GA', 'ga', '']
-                    for cloud_name in ['Azure Government', 'Gov', 'MAG']
-                ],
-            'metadata': md + [ md_azgov ],
-            'context': {
-                'isContextOnly': False,
-                'prompts': self.__helper_get_scope_prompt (id, ids_scopes[2], 'azure-government')
-
+                'prompts':
+                    self.__helper_get_prompt( id_azpub, "Azure Commercial", [1], 1 ) +
+                    self.__helper_get_prompt( id_azgov, "Azure Government", [1], 2 )
+                    #self.__helper_get_scope_prompt (id, ids_scopes[0])
             }
         })
 
         # yapf: enable
+        return [id_all, id_azpub, id_azgov]
 
     def __helper_get_scope_prompt(self, id, id_scope, cloud=""):
         scope_list = self.__az.getProductScopes(id, cloud)
@@ -156,7 +267,12 @@ class QnABruteForce:
 
         return []
 
-    def __hydrate_preview_qna(self, id):
+    def __helper_get_prompt(self, qna_id, qna_prompt, check_list, display_order=1):
+        if type(check_list) == list and len(check_list) > 0:
+            return [{'DisplayOrder': display_order, 'DisplayText': qna_prompt, 'QnaId': qna_id}]
+        return []
+
+    def __hydrate_preview_qna(self, id) -> list:
 
         # yapf: disable
 
@@ -169,8 +285,9 @@ class QnABruteForce:
         md = [md_prod, md_type, md_test]
 
         ## Where is {id} in preview?
+        id_all = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
+            'id': id_all,
             'answer': _b(id) + self.answer_where_preview(id),
             'source': QnA_SOURCE,
             'questions': [ f"{word}is {id} preview?" for word in ['','Where '] ],
@@ -178,8 +295,9 @@ class QnABruteForce:
         })
 
         ## ... in Azure Commercial?
+        id_azpub = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
+            'id': id_azpub,
             'answer': _b(id) + self.answer_where_preview_in(id, 'azure-public'),
             'source': QnA_SOURCE,
             'questions':
@@ -189,8 +307,9 @@ class QnABruteForce:
         })
 
         ## ... in Azure Government?
+        id_azgov = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
+            'id': id_azgov,
             'answer': _b(id) + self.answer_where_preview_in(id, 'azure-government'),
             'source': QnA_SOURCE,
             'questions':
@@ -202,7 +321,9 @@ class QnABruteForce:
 
         # yapf: enable
 
-    def __hydrate_expected_qna(self, id):
+        return [id_all, id_azpub, id_azgov]
+
+    def __hydrate_expected_qna(self, id) -> list:
 
         # yapf: disable
 
@@ -215,8 +336,9 @@ class QnABruteForce:
         md = [md_prod, md_type, md_test]
 
         ## When is {id} expected to be available?
+        id_all = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
+            'id': id_all,
             'answer': _b(id) + self.answer_where_expected_ga(id),
             'source': QnA_SOURCE,
             'questions': [f"When is {id} expected to be {word}" for word in ['available', 'ga', 'GA'] ],
@@ -224,8 +346,9 @@ class QnABruteForce:
         })
 
         ## ... in Azure Commercial?
+        id_azpub = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
+            'id': id_azpub,
             'answer':  _b(id) + self.answer_where_expected_ga_in(id, 'azure-public'),
             'source': QnA_SOURCE,
             'questions':
@@ -235,8 +358,9 @@ class QnABruteForce:
         })
 
         ## ... in Azure Government?
+        id_azgov = len(self.__qna)
         self.__qna.append({
-            'id': len(self.__qna),
+            'id': id_azgov,
             'answer':  _b(id) + self.answer_where_expected_ga_in(id, 'azure-government'),
             'source': QnA_SOURCE,
             'questions':
@@ -247,7 +371,9 @@ class QnABruteForce:
 
         # yapf: enable
 
-    def __hydrate_scopes_qna(self, id):
+        return [id_all, id_azpub, id_azpub]
+
+    def __hydrate_scopes_qna(self, id) -> list:
 
         # yapf: disable
 
@@ -345,9 +471,8 @@ class QnABruteForce:
 
         # yapf: enable
 
-
     def __hydrate_regions_qna(self, id):
-        
+
         # yapf: disable
 
         md_prod = {'name': 'product', 'value': id.replace('|', ' ').replace(':', ' ')}
@@ -363,8 +488,8 @@ class QnABruteForce:
                 'id': len(self.__qna),
                 'answer': self.answer_is_in_region(id, region, 'azure-public'),
                 'source': QnA_SOURCE,
-                'questions': [ 
-                    f"Is {id} {word} in {region_name}" 
+                'questions': [
+                    f"region: Is {id} {word} in {region_name}?"
                         for word in ['ga', 'GA', 'available', '']
                         for region_name in [ region, region.replace('-',''), region.replace('-', ' ') ]
                 ],
@@ -376,8 +501,8 @@ class QnABruteForce:
                 'id': len(self.__qna),
                 'answer': self.answer_is_in_region(id, region, 'azure-government'),
                 'source': QnA_SOURCE,
-                'questions': [ 
-                    f"Is {id} {word} in {region_name}" 
+                'questions': [
+                    f"region: Is {id} {word} in {region_name}"
                         for word in ['ga', 'GA', 'available', '']
                         for region_name in [ region, region.replace('-',''), region.replace('-', ' ') ]
                 ],
@@ -385,7 +510,6 @@ class QnABruteForce:
             })
 
         # yapf: enable
-
 
     def __helper_hydrate_is_scope(self, id, scope, names, cloud_list, metadata_starter):
 
@@ -429,31 +553,23 @@ class QnABruteForce:
 
         # yapf: enable
 
-    def answer_tell_me_everything_about (self, id):
+    def answer_tell_me_everything_about(self, id):
         product = self.__az.getProductDetails(id)
 
         prod_name = id
         prod_type = product['type']
         prod_cats = product['categories']
-        
+
         cloud = 'azure-public'
         prod_available = product[cloud]['available']
         prod_ga = product[cloud]['ga']
 
-
-        a = ( "\n\n" +
-            _i(_b(id)) + "\n\n" +
-
-            _b("Azure Commercial") + "\n\n" + 
-            
-            "It" + self.answer_where_ga_in (id, cloud) + 
-            "It" + self.answer_where_preview_in(id, cloud) + 
-            "It" + self.answer_where_expected_ga_in(id, cloud, False) + 
-            "It" + self.answer_which_scopes_in_cloud(id, cloud)  +    
-            
-            "\n\n"
+        a = (
+            "\n\n" + _i(_b(id)) + "\n\n" + _b("Azure Commercial") + "\n\n" + "It" +
+            self.answer_where_ga_in(id, cloud) + "It" + self.answer_where_preview_in(id, cloud) +
+            "It" + self.answer_where_expected_ga_in(id, cloud, False) + "It" +
+            self.answer_which_scopes_in_cloud(id, cloud) + "\n\n"
         )
-
 
         return a
 
@@ -664,19 +780,19 @@ class QnABruteForce:
 
     def answer_is_in_region(self, id, region, cloud=""):
         if self.__az.isProductAvailableInRegion(id, region):
-            return f"Yes. {_b(id)} is in {region}."
+            return f"Yes. {_b(id)} is in the {_i(region)} region."
 
         # TODO: Need to improve how non-regional products are handled
 
         ga_ans = prev_ans = target_ans = ""
         if self.__az.isProductAvailable(id):
             ga_ans = "\n\nIt" + self.answer_where_ga_in(id, cloud)
-        if len(self.__az.getProductPreviewRegions(id,cloud)) > 0:
+        if len(self.__az.getProductPreviewRegions(id, cloud)) > 0:
             prev_ans = "\n\nIt" + self.answer_where_preview_in(id, cloud)
-        if len(self.__az.getProductRegionsGATargets(id,cloud)) > 0:
-            target_ans = "\n\nIt" + self.answer_where_expected_ga_in(id, cloud)
+        if len(self.__az.getProductRegionsGATargets(id, cloud)) > 0:
+            target_ans = "\n\nIt" + self.answer_where_expected_ga_in(id, cloud, False)
 
-        return f"No. {_b(id)} is not in {region}. {ga_ans}{prev_ans}{target_ans}"
+        return f"No. {_b(id)} is not in {_i(region)}. {ga_ans}{prev_ans}{target_ans}"
 
     def __cloud_name(self, cloud) -> str:
         if (cloud == 'azure-public'): return _i("Azure Commercial")
