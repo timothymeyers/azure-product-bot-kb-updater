@@ -754,10 +754,14 @@ class QnABruteForce:
             gov = "DoD CC SRG IL 5 (Azure Gov)" in scopes
             dod = "DoD CC SRG IL 5 (Azure DoD)" in scopes
 
+            gov_prepend = ("\n\n\nPlease see this " + 
+                _b("[link](https://docs.microsoft.com/en-us/azure/azure-government/documentation-government-impact-level-5)") + 
+                " for more information regarding IL 5 isolation in Gov regions")
+
             if (gov and dod):
-                return " in **both Gov and DoD regions**"
+                return " in **both Gov and DoD regions**." + gov_prepend
             elif gov:
-                return ", but in **Gov regions only**"
+                return ", but in **Gov regions only**." + gov_prepend
             elif dod:
                 return ", but in **DoD regions only**"
 
@@ -806,4 +810,3 @@ class QnABruteForce:
     def dump(self):
         return self.__az.product_list()
 
-    ########################## --------------------------------------------------------------------------------------------------------
