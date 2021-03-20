@@ -1,3 +1,5 @@
+import random
+
 from azure_data_scraper.az_product_info import AzProductInfo
 
 FUNC_TEST_NUM = "0006"
@@ -61,15 +63,55 @@ class QnABruteForce:
             self.__hydrate_regions_qna(id)
             self.__qna_ids[id]['tell-me-about'] = self.__hydrate_tell_me_about(id)
 
-        self.__hydrate_summary_info()
+        self.__qna_ids['all-services'] = self.__hydrate_summary_info()
+
+        self.__hydrate_how_to()
 
 
 ## ===============================================================================
 
+    def __hydrate_how_to(self):
+        md_type = {'name': 'questionType', 'value': 'how to'}
+        md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
+
+        md = [md_type, md_test]
+
+        service_list = self.__az.services_list()
+
+        random_services = [random.choice(service_list) for _ in range(0, 10)]
+
+        self.__qna.append({
+            'id': len(self.__qna),
+            'answer': self.answer_what_can_i_ask(),
+            'source': QnA_SOURCE,
+            'questions': ["help", "how do i start?", "what can i ask?", "start"],
+            'metadata': md.copy(),
+            'context': {
+                'isContextOnly':
+                False,
+                'prompts':
+                self.__helper_get_prompt(
+                    self.__qna_ids['all-services'], 'Which services do you know?', [1], 1
+                ) + self.__helper_get_prompt(
+                    self.__qna_ids[random_services[0]]['available'][2],
+                    f'Is {random_services[0]} available in MAG?', [1], 2
+                ) + self.__helper_get_prompt(
+                    self.__qna_ids[random_services[1]]['available'][0],
+                    f'Where is {random_services[1]} available?', [1], 2
+                ) + self.__helper_get_prompt(
+                    self.__qna_ids[random_services[2]]['scopes'][0],
+                    f'What impact levels is {random_services[2]} at?', [1], 3
+                ) + self.__helper_get_prompt(
+                    self.__qna_ids[random_services[3]]['scopes'][0],
+                    f'Tell me about {random_services[3]}', [1], 4
+                )
+            }
+        })
+
     def __hydrate_summary_info(self):
         # yapf: disable
 
-        md_type = {'name': 'questionType', 'value': 'expected-question'}
+        md_type = {'name': 'questionType', 'value': 'summary-question'}
         md_test = {'name': 'functiontest', 'value': FUNC_TEST_NUM}
         md_azpub = {'name': 'cloud', 'value': 'azure-public'}
         md_azgov = {'name': 'cloud', 'value': 'azure-government'}
@@ -125,6 +167,7 @@ class QnABruteForce:
             })
 
         # yapf: enable
+        return id_first
 
     def __hydrate_tell_me_about(self, id):
         # yapf: disable
@@ -820,6 +863,28 @@ class QnABruteForce:
             target_ans = "\n\nIt" + self.answer_where_expected_ga_in(id, cloud, False)
 
         return f"No. {_b(id)} is not in {_i(region)}. {ga_ans}{prev_ans}{target_ans}"
+
+    def answer_what_can_i_ask(self):
+        prod = _b('[product]')
+        
+        # yapf: disable
+        return (
+            f"I know {_i('publicly available')} information about Azure products in {_b('Azure Commercial (US)')} and {_b('Azure Government')}."
+            + f"\n\n\nAsk me things like" +
+
+            list_to_markdown([
+                "Which services do you know?",
+                f"Tell me about {prod}",
+                f"Is {prod} available?",
+                f"Is {prod} in preview?",
+                f"Is {prod} at IL5?",
+                f"Which audit scopes is {prod} at in MAG?",
+                f"Is {prod} in usgov virginia?",
+                "Or *just click below to get started*."
+
+            ])
+        )
+        # yapf: enable
 
     def __cloud_name(self, cloud) -> str:
         if (cloud == 'azure-public'): return _i("Azure Commercial")
