@@ -49,6 +49,8 @@ class QnABruteForce:
         for q, a in self.__qna:
             print(q, "\t", a)
 
+## ===============================================================================
+
     def __hydrate_qna(self):
         for id in (self.__az.capabilities_list() + self.__az.services_list()):
             self.__qna_ids[id] = {}
@@ -60,6 +62,8 @@ class QnABruteForce:
             self.__qna_ids[id]['tell-me-about'] = self.__hydrate_tell_me_about(id)
 
         self.__hydrate_summary_info()
+
+## ===============================================================================
 
     def __hydrate_summary_info(self):
         # yapf: disable
@@ -130,6 +134,9 @@ class QnABruteForce:
 
         md = [md_prod, md_type, md_test]
 
+        ## - Get capability prompts here
+        capability_prompts = self.__helper_get_capability_prompts(id)
+
         id_all = len(self.__qna)
         self.__qna.append({
             'id': id_all,
@@ -143,31 +150,58 @@ class QnABruteForce:
                 'isContextOnly': False,
                 'prompts': self.__helper_get_prompt (
                                 self.__qna_ids[id]['available'][1],
-                                "Azure Commericial - Availability",
+                                "Availability in Commercial (US)?",
                                 [1], 1
                                 ) +
 
                             self.__helper_get_prompt (
                                 self.__qna_ids[id]['scopes'][1],
-                                "Azure Commericial - Audit Scopes",
+                                "Audit scopes in Commercial (US)?",
                                 self.__az.getProductScopes(id, 'azure-public'), 2
                                 ) +
 
                             self.__helper_get_prompt (
                                 self.__qna_ids[id]['available'][2],
-                                "Azure Government - Availability",
+                                "Availability in MAG?",
                                 [1], 3
                                 ) +
 
                             self.__helper_get_prompt (
                                 self.__qna_ids[id]['scopes'][2],
-                                "Azure Government - Audit Scopes",
+                                "Audit scopes / impact levels in MAG?",
                                 self.__az.getProductScopes(id, 'azure-government'), 4
-                                )
+                                ) +
+
+                            capability_prompts
             }
         })
 
         return id_all
+
+    def __helper_get_capability_prompts (self, id):
+        prod_details = self.__az.getProductDetails(id)
+
+        if prod_details['type'] == 'capability': return []
+
+        capabilities = list(prod_details['capabilities'])
+        capabilities.sort()
+
+        prompts = []
+        for i, capability in enumerate(capabilities):
+            prompts = prompts + self.__helper_get_prompt (self.__qna_ids[capability]['tell-me-about'],
+                    capability,[1],i+5)
+
+        return prompts
+
+
+        '''
+        self.__helper_get_prompt (
+                                self.__qna_ids[id]['scopes'][2],
+                                "Azure Government - Audit Scopes",
+                                self.__az.getProductScopes(id, 'azure-government'), 4
+                                )
+        '''
+
 
     def __hydrate_available_qna(self, id):
         # yapf: disable
@@ -740,8 +774,8 @@ class QnABruteForce:
             gov = "DoD CC SRG IL 5 (Azure Gov)" in scopes
             dod = "DoD CC SRG IL 5 (Azure DoD)" in scopes
 
-            gov_prepend = ("\n\n\nPlease see this " + 
-                _b("[link](https://docs.microsoft.com/en-us/azure/azure-government/documentation-government-impact-level-5)") + 
+            gov_prepend = ("\n\n\nPlease see this " +
+                _b("[link](https://docs.microsoft.com/en-us/azure/azure-government/documentation-government-impact-level-5)") +
                 " for more information regarding IL 5 isolation in Gov regions")
 
             if (gov and dod):
@@ -795,4 +829,3 @@ class QnABruteForce:
 
     def dump(self):
         return self.__az.product_list()
-
