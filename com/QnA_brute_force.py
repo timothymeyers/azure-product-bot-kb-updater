@@ -73,7 +73,7 @@ class QnABruteForce:
 
         services = self.__az.services_list()
         services.sort()
-        services = chunk_list (services, 5)
+        services = chunk_list (services, 50)
 
         prompts = []
         for i, id in enumerate(services[0]):
