@@ -48,7 +48,7 @@ jobs:
         package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_d0c86fae2ccd47b4b2743dbb933e1a97 }}
 
-    - name: 'HTTP trigger Function to update KB (temporary)'
-      shell: bash
-      run: curl https://azure-product-bot-kb-updater.azurewebsites.net/api/azure_product_bot_kb_updater?name=Azure
+    #- name: 'HTTP trigger Function to update KB (temporary)'
+    #  shell: bash
+    #  run: curl https://azure-product-bot-kb-updater.azurewebsites.net/api/azure_product_bot_kb_updater?name=Azure
         
