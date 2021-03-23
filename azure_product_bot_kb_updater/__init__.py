@@ -1,5 +1,6 @@
 import logging
 import os, http.client, urllib.parse, json, time
+import datetime
 
 import azure.functions as func
 from ..com.QnA_brute_force import QnABruteForce
@@ -12,17 +13,14 @@ SERVICE = '/qnamaker/v4.0'
 METHOD = '/knowledgebases/'
 
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
+def main(mytimer: func.TimerRequest) -> None:
     logging.info('Python HTTP trigger function processed a request.')
 
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
+    utc_timestamp = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+    edt_timestamp = datetime.datetime.now()
+
+    if mytimer.past_due:
+        logging.info('The timer is past due!')
 
     #### Function Code goes here #### ------------------------------------------------------------
 
@@ -102,15 +100,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     #### End Function Code #### ------------------------------------------------------------------
 
-    if name:
-        return func.HttpResponse(
-            f"Hello, {name}. This HTTP triggered function executed successfully."
-        )
-    else:
-        return func.HttpResponse(
-            "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-            status_code=200
-        )
+    ## No return for time trigger
+    logging.debug(f'Executed - [UTC] {utc_timestamp}' )
+    logging.info(f'Executed - [EDT] {edt_timestamp}' )
 
 
 def _load_env_vars():
