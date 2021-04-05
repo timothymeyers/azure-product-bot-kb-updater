@@ -7,6 +7,8 @@
       "category1",
       "category2"
     ],
+    "availability-data": true,
+    "scope-data": true,
     "azure-public": {
       "available": true,
       "scopes": [
@@ -81,6 +83,8 @@
     "type": "service",
     "capabilities": [],
     "categories": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -104,6 +108,8 @@
       "category1",
       "category2"
     ],
+    "availability-data": true,
+    "scope-data": true,
     "azure-public": {
       "available": false,
       "scopes": [
@@ -165,12 +171,13 @@
       ]
     }
   },
-
   "IL5 Service - BOTH": {
     "prod-id": "IL5 Service - BOTH",
     "type": "service",
     "capabilities": [],
     "categories": [],
+    "availability-data": false,
+    "scope-data": true,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -180,18 +187,22 @@
     },
     "azure-government": {
       "available": false,
-      "scopes": ["DoD CC SRG IL 5 (Azure Gov)", "DoD CC SRG IL 5 (Azure DoD)"],
+      "scopes": [
+        "DoD CC SRG IL 5 (Azure Gov)",
+        "DoD CC SRG IL 5 (Azure DoD)"
+      ],
       "ga": [],
       "preview": [],
       "planned-active": []
     }
   },
-
   "IL5 Service - Gov": {
     "prod-id": "IL5 Service - Gov",
     "type": "service",
     "capabilities": [],
     "categories": [],
+    "availability-data": false,
+    "scope-data": true,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -201,18 +212,21 @@
     },
     "azure-government": {
       "available": false,
-      "scopes": ["DoD CC SRG IL 5 (Azure Gov)"],
+      "scopes": [
+        "DoD CC SRG IL 5 (Azure Gov)"
+      ],
       "ga": [],
       "preview": [],
       "planned-active": []
     }
   },
-
   "IL5 Service - DoD": {
     "prod-id": "IL5 Service - DoD",
     "type": "service",
     "capabilities": [],
     "categories": [],
+    "availability-data": false,
+    "scope-data": true,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -222,17 +236,20 @@
     },
     "azure-government": {
       "available": false,
-      "scopes": ["DoD CC SRG IL 5 (Azure DoD)"],
+      "scopes": [
+        "DoD CC SRG IL 5 (Azure DoD)"
+      ],
       "ga": [],
       "preview": [],
       "planned-active": []
     }
   },
-
   "Totally Empty Service 0": {
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -252,6 +269,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -271,6 +290,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -290,6 +311,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -309,6 +332,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -328,6 +353,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -347,6 +374,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -366,6 +395,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -385,6 +416,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -404,6 +437,8 @@
     "categories": [],
     "type": "service",
     "capabilities": [],
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -422,6 +457,8 @@
   "Totally Empty Capability 0": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -440,6 +477,8 @@
   "Totally Empty Capability 1": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -458,6 +497,8 @@
   "Totally Empty Capability 2": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -476,6 +517,8 @@
   "Totally Empty Capability 3": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -494,6 +537,8 @@
   "Totally Empty Capability 4": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -512,6 +557,8 @@
   "Totally Empty Capability 5": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -530,6 +577,8 @@
   "Totally Empty Capability 6": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -548,6 +597,8 @@
   "Totally Empty Capability 7": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -566,6 +617,8 @@
   "Totally Empty Capability 8": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
@@ -584,6 +637,8 @@
   "Totally Empty Capability 9": {
     "categories": [],
     "type": "capability",
+    "availability-data": false,
+    "scope-data": false,
     "azure-public": {
       "available": false,
       "scopes": [],
