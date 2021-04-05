@@ -84,7 +84,7 @@ class QnABruteForce:
             'id': len(self.__qna),
             'answer': self.answer_what_can_i_ask(),
             'source': QnA_SOURCE,
-            'questions': ["help", "how do i start?", "what can i ask?", "start"],
+            'questions': ["help", "hello","hi", "how do i start?", "what can i ask?", "start"],
             'metadata': md.copy(),
             'context': {
                 'isContextOnly':
